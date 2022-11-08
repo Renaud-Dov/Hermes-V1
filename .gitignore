@@ -1,0 +1,7 @@
+/.idea
+*.log
+firebase.json
+
+package-lock.json
+node_modules/
+config.yaml

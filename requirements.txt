@@ -1,0 +1,2 @@
+git+https://github.com/Rapptz/discord.py.git@master
+PyYAML~=6.0
