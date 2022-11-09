@@ -7,41 +7,34 @@ def urlButton(url: str):
     return discord.ui.Button(label="Link", style=discord.ButtonStyle.link, url=url)
 
 
-class newThreadView(discord.ui.View):
-    def __init__(self, url: str):
-        super().__init__(timeout=None)
-        self.add_item(urlButton(url))
-
-    @discord.ui.button(label="Resolve ticket", style=discord.ButtonStyle.green, emoji="✅")
-    async def resolve(self, interaction: discord.Interaction, button: discord.ui.Button):
-
-        embed: discord.Embed = interaction.message.embeds[0]
-        editEmbed(embed, interaction.user, "Resolved")
-
-        id_thread = int(interaction.message.embeds[0].footer.text.lstrip("Thread ID:"))
-        embed.timestamp = discord.utils.utcnow()
-
-        thread: discord.Thread = interaction.client.get_channel(id_thread)
-        if thread is None:
-            await interaction.response.send_message("Thread not found", ephemeral=True)
-            return
-        forum: discord.ForumChannel = thread.parent
+class ReopenView(discord.ui.View):
+    @discord.ui.button(label="Reopen", style=discord.ButtonStyle.green, emoji="🔓")
+    async def reopen(self, interaction: discord.Interaction, button: discord.ui.Button):
+        thread = interaction.channel
+        forum = thread.parent
         config = Config("config/config.yaml")
         config_forum = config.get_forum(forum.id)
         if not config_forum:
             await interaction.response.send_message("Forum not found", ephemeral=True)
             return
+        if interaction.user.id not in config.settings.managers and interaction.user.id != thread.owner.id:
+            await interaction.response.send_message("You are not allowed to do that", ephemeral=True)
+            return
         for tag in forum.available_tags:
             if tag.name == config_forum.end_tag:
-                await thread.add_tags(tag)
+                await thread.remove_tags(tag)
                 break
 
-        await thread.send(embed=doneEmbed(interaction.user, "Resolved", ""))
+        await thread.edit(archived=False, locked=False)
+        await interaction.message.delete()
+        await interaction.response.send_message("Reopened", ephemeral=True)
+        log_chan = interaction.client.get_channel(config_forum.webhook_channel)
 
+        await thread.edit(auto_archive_duration=10080)  # 7 days to archive
+        embed = newThreadEmbed(thread)
         view = discord.ui.View()
         view.add_item(urlButton(thread.jump_url))
-        await interaction.response.send_message("Marked as done", ephemeral=True)
-        await interaction.message.edit(embed=embed, view=view)
+        await log_chan.send(embed=embed, view=view)
 
 
 def strTag(tag: discord.ForumTag):
@@ -51,12 +44,15 @@ def strTag(tag: discord.ForumTag):
     return s
 
 
-def newThreadEmbed(thread: discord.Thread):
+def newThreadEmbed(thread: discord.Thread, reopened=False):
     embed = discord.Embed(title=thread.name, color=discord.Color.orange())
     if thread.starter_message:
         embed.description = thread.starter_message.content
     embed.timestamp = thread.created_at
-    embed.add_field(name="Status", value="Open 🟢")  # must be fist field
+    if reopened:
+        embed.add_field(name="Status", value="Open 🟢")  # must be fist field
+    else:
+        embed.add_field(name="Status", value="Reopened 🟢")  # must be fist field
     embed.set_author(name=thread.owner.display_name, icon_url=thread.owner.display_avatar)
     if thread.applied_tags:
         embed.add_field(name="Tags", value="\n".join([strTag(tag) for tag in thread.applied_tags]))
@@ -65,18 +61,16 @@ def newThreadEmbed(thread: discord.Thread):
     return embed
 
 
-def doneEmbed(member: discord.Member, status: str, reason: str = "Resolved"):
+def doneEmbed(member: discord.Member, status: str):
     embed = discord.Embed(title="Ticket has been closed by an assistant", color=discord.Color.blue())
-    if reason:
-        embed.description = reason
     if status == "Duplicate":
         embed.colour = discord.Colour.red()
         embed.title = "This question has already been answered. Please check if your question is already answered " \
-                      "before creating a new thread."
+                      "before creating a new ticket."
 
-    embed.set_author(name=member.display_name, icon_url=member.display_avatar)
+    embed.set_author(name=member.display_name, icon_url=member.display_avatar)  # TODO: change name to server name
     embed.timestamp = discord.utils.utcnow()
-    embed.set_footer(text="If you have any further questions, please create a new thread.")
+    embed.set_footer(text="If you have any further questions, please create a new ticket.")
     return embed
 
 
@@ -93,6 +87,11 @@ def editEmbed(embed: discord.Embed, member: discord.Member, status: str):
     elif status == "Joined":
         embed.set_field_at(0, name="Status", value="Joined 🟢")
         embed.colour = discord.Colour.orange()
+
+    for field in embed.fields:
+        if field.name == "Action done by":
+            embed.remove_field(embed.fields.index(field))
+            break
     embed.add_field(name="Action done by", value=member.mention)
 
     embed.timestamp = discord.utils.utcnow()

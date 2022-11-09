@@ -36,11 +36,11 @@ async def updateCommands(interaction: discord.Interaction):
     await interaction.response.send_message("Updated commands")
 
 
-@tree.command(name="done", description="Mark a ticket as resolved")
+
+@tree.command(name="close", description="Mark a ticket as resolved")
 @app_commands.choices(type=[Choice(name="Resolved", value="Resolved"), Choice(name="Duplicate", value="Duplicate")])
 @app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
-@app_commands.describe(reason="Reason for closing the ticket")
-async def done(interaction: discord.Interaction, type: Optional[Choice[str]], reason: Optional[str]):
+async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
     channel = interaction.channel
     if not channel or channel.type != discord.ChannelType.public_thread:
         await interaction.response.send_message("This is not a thread!", ephemeral=True)
@@ -70,7 +70,10 @@ async def done(interaction: discord.Interaction, type: Optional[Choice[str]], re
             break
 
     await interaction.response.send_message("Marked as done", ephemeral=True)
-    await channel.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value, reason))
+    await channel.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value))
+
+    # await thread.edit(locked=True, archived=True)
+    # print(f"Marked thread {thread.id} as done")
 
 
 @client.event
@@ -83,7 +86,8 @@ async def on_thread_create(thread: discord.Thread):
 
     await thread.edit(auto_archive_duration=10080)  # 7 days to archive
     embed = Embed.newThreadEmbed(thread)
-    view = Embed.newThreadView(thread.jump_url)
+    view = discord.ui.View()
+    view.add_item(Embed.urlButton(thread.jump_url))
     channel_id = config_forum.webhook_channel
     channel = client.get_channel(channel_id)
     await channel.send(embed=embed, view=view)
@@ -106,18 +110,6 @@ async def on_thread_member_join(member: discord.ThreadMember):
             Embed.editEmbed(embed, client.get_user(member.id), "Joined")
             await message.edit(embed=embed)
             break
-
-
-# @block.error
-# @unblock.error
-# @me.error
-# async def block_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-#     if isinstance(error, app_commands.CommandOnCooldown):
-#         await interaction.response.send_message(f"**Please wait {int(error.retry_after)} seconds before trying again**",
-#                                                 ephemeral=True)
-#     else:
-#         logger.exception(error)
-#         await interaction.response.send_message("**Something went wrong. Please retry later**", ephemeral=True)
 
 try:
     client.run(os.environ.get("DISCORD_TOKEN"))
