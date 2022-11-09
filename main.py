@@ -94,6 +94,11 @@ async def git(interaction: discord.Interaction):
     await interaction.response.send_message("https://moodle.cri.epita.fr/mod/page/view.php?id=18488")
 
 
+@tree.command(name="intra", description="Link to Forge Intra")
+async def intra(interaction: discord.Interaction):
+    await interaction.response.send_message("https://intra.forge.epita.fr/epita-prepa-acdc")
+
+
 @client.event
 async def on_thread_create(thread: discord.Thread):
     print("Thread created")
