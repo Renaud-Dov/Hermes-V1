@@ -6,7 +6,8 @@ import discord
 from discord import app_commands
 from discord.app_commands import Choice
 from src.ConfigFormat import Config
-from src import Embed
+from src import Embed, Modal
+from src.tickets import create_private_channel
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -35,6 +36,18 @@ async def updateCommands(interaction: discord.Interaction):
     await tree.sync()
     await interaction.response.send_message("Updated commands")
 
+
+@tree.command(name="ticket", description="Open a ticket")
+async def open_new_ticket(interaction: discord.Interaction, category: str):
+    config = Config("config/config.yaml")
+
+    tags_list = config.get_open_tag_tickets()
+    if category not in tags_list:
+        await interaction.response.send_message(
+            "Invalid category. Please choose one of the following: " + ", ".join(tags_list), ephemeral=True)
+        return
+    config_ticket = config.tickets[category]
+    await interaction.response.send_modal(Modal.AskQuestion(config_ticket))
 
 
 @tree.command(name="close", description="Mark a ticket as resolved")
@@ -110,6 +123,7 @@ async def on_thread_member_join(member: discord.ThreadMember):
             Embed.editEmbed(embed, client.get_user(member.id), "Joined")
             await message.edit(embed=embed)
             break
+
 
 try:
     client.run(os.environ.get("DISCORD_TOKEN"))
