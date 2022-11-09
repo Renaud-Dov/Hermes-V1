@@ -26,7 +26,7 @@ class newThreadView(discord.ui.View):
             await interaction.response.send_message("Thread not found", ephemeral=True)
             return
         forum: discord.ForumChannel = thread.parent
-        config = Config("config.yaml")
+        config = Config("config/config.yaml")
         config_forum = config.get_forum(forum.id)
         if not config_forum:
             await interaction.response.send_message("Forum not found", ephemeral=True)

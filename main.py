@@ -46,7 +46,7 @@ async def done(interaction: discord.Interaction, type: Optional[Choice[str]], re
         await interaction.response.send_message("This is not a thread!", ephemeral=True)
         return
 
-    config = Config("config.yaml")
+    config = Config("config/config.yaml")
     forum = config.get_forum(channel.parent_id)
     if not forum:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
@@ -76,7 +76,7 @@ async def done(interaction: discord.Interaction, type: Optional[Choice[str]], re
 @client.event
 async def on_thread_create(thread: discord.Thread):
     print("Thread created")
-    config = Config("config.yaml")
+    config = Config("config/config.yaml")
     config_forum = config.get_forum(thread.parent_id)
     if not config_forum:
         return
@@ -93,7 +93,7 @@ async def on_thread_create(thread: discord.Thread):
 
 @client.event
 async def on_thread_member_join(member: discord.ThreadMember):
-    config = Config("config.yaml")
+    config = Config("config/config.yaml")
     config_forum = config.get_forum(member.thread.parent_id)
     if not config_forum or member.thread.archived:
         return
