@@ -89,6 +89,11 @@ async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
     # print(f"Marked thread {thread.id} as done")
 
 
+@tree.command(name="git", description="Link to git survival guide")
+async def git(interaction: discord.Interaction):
+    await interaction.response.send_message("https://moodle.cri.epita.fr/mod/page/view.php?id=18488")
+
+
 @client.event
 async def on_thread_create(thread: discord.Thread):
     print("Thread created")
