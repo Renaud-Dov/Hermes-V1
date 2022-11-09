@@ -1,9 +1,11 @@
+from typing import List
+
 import yaml
 import re
 
 
 class SettingsFormat:
-    def __init__(self, managers: list[int]):
+    def __init__(self, managers: List[int]):
         # regex for matching a discord snowflake
         self.managers = [int(re.match("^[0-9]+", str(m)).group(0)) for m in managers]
 
