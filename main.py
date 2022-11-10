@@ -53,9 +53,8 @@ async def open_new_ticket(interaction: discord.Interaction, category: str):
 
 @tree.command(name="add_vocal", description="Add a vocal channel to a ticket")
 @app_commands.describe(student="Student to add to vocal channel")
-@app_commands.describe(channel="Linked text channel")
-async def add_vocal(interaction: discord.Interaction, category: str, channel: discord.TextChannel,
-                    student: discord.Member):
+async def add_vocal(interaction: discord.Interaction, category: str, student: discord.Member):
+    channel = interaction.channel
     config = Config("config/config.yaml")
     tags_list = config.get_open_tag_tickets()
     if category not in tags_list:
