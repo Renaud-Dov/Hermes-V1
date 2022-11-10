@@ -47,7 +47,7 @@ async def open_new_ticket(interaction: discord.Interaction, category: str):
             "Invalid category. Please choose one of the following: " + ", ".join(tags_list), ephemeral=True)
         return
     config_ticket = config.tickets[category]
-    await interaction.response.send_modal(Modal.AskQuestion(category,config_ticket))
+    await interaction.response.send_modal(Modal.AskQuestion(category, config_ticket))
 
 
 @tree.command(name="close", description="Mark a ticket as resolved")
@@ -92,6 +92,17 @@ async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
 @tree.command(name="git", description="Link to git survival guide")
 async def git(interaction: discord.Interaction):
     await interaction.response.send_message("https://moodle.cri.epita.fr/mod/page/view.php?id=18488")
+
+
+@tree.command(name="abel")
+async def abel(interaction: discord.Interaction):
+    if interaction.user.id != 208480161421721600:
+        return
+    embed = discord.Embed(title="Va bosser Chartier", color=discord.Color.dark_red())
+    embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+    embed.set_image(url="https://media.tenor.com/SvQlro63ZscAAAAC/pas-content.gif")
+    await interaction.response.defer()
+    await interaction.channel.send(embed=embed)
 
 
 @tree.command(name="intra", description="Link to Forge Intra")
