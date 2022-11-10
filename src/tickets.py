@@ -12,5 +12,6 @@ async def create_vocal_channel(category: discord.CategoryChannel, student: disco
     """Creates a private channel for a student and an assistant"""
     voice_channel = await category.create_voice_channel(name=name)
     await voice_channel.set_permissions(student, overwrite=discord.PermissionOverwrite(connect=True, speak=True,
-                                                                                       view_channel=True))
+                                                                                       view_channel=True,
+                                                                                       use_voice_activation=True))
     return voice_channel
