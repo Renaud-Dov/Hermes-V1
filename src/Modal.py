@@ -24,6 +24,6 @@ class AskQuestion(ui.Modal, title='Votre question'):
         log_chan = interaction.client.get_channel(self.config_ticket.webhook_channel)
         view = discord.ui.View()
         view.add_item(urlButton(msg.jump_url))
-        await log_chan.send(embed=newTicketEmbed(interaction.user, channel), view=view)
+        await log_chan.send(embed=newTicketEmbed(interaction.user,self.login.value,self.question.value, channel), view=view)
         await interaction.response.send_message(f"A new ticket channel has been created in {channel.mention}",
                                                 ephemeral=True)
