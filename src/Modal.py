@@ -21,6 +21,7 @@ class AskQuestion(ui.Modal, title='Votre question'):
         await channel.send(self.question.value)
         log_chan = interaction.client.get_channel(self.config_ticket.webhook_channel)
         await log_chan.send("New question from {0} ({1})".format(interaction.user.name, msg.jump_url))
+        await interaction.response.send_message(f"A new ticket channel has been created in {channel.mention}", ephemeral=True)
 
 
 
