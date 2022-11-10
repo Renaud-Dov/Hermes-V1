@@ -97,11 +97,12 @@ def editEmbed(embed: discord.Embed, member: discord.Member, status: str):
     embed.timestamp = discord.utils.utcnow()
 
 
-def newTicketEmbed(student: discord.Member,login: str, question: str, channel: discord.TextChannel):
+def newTicketEmbed(student: discord.Member,category_tag: str, login: str, question: str, channel: discord.TextChannel):
     embed = discord.Embed(title="New ticket created", color=discord.Color.orange())
     embed.description = question
     embed.set_author(name=student.display_name, icon_url=student.display_avatar)
     embed.add_field(name="Login", value=login)
+    embed.add_field(name="Tag Category", value=category_tag)
     embed.timestamp = discord.utils.utcnow()
     embed.set_footer(text=f"Channel ID: {channel.id}")
     return embed

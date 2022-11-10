@@ -47,7 +47,7 @@ async def open_new_ticket(interaction: discord.Interaction, category: str):
             "Invalid category. Please choose one of the following: " + ", ".join(tags_list), ephemeral=True)
         return
     config_ticket = config.tickets[category]
-    await interaction.response.send_modal(Modal.AskQuestion(config_ticket))
+    await interaction.response.send_modal(Modal.AskQuestion(category,config_ticket))
 
 
 @tree.command(name="close", description="Mark a ticket as resolved")
