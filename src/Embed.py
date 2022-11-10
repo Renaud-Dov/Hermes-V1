@@ -97,7 +97,7 @@ def editEmbed(embed: discord.Embed, member: discord.Member, status: str):
     embed.timestamp = discord.utils.utcnow()
 
 
-def newTicketEmbed(student: discord.Member,category_tag: str, login: str, question: str, channel: discord.TextChannel):
+def newTicketEmbed(student: discord.Member, category_tag: str, login: str, question: str, channel: discord.TextChannel):
     embed = discord.Embed(title="New ticket created", color=discord.Color.orange())
     embed.description = question
     embed.set_author(name=student.display_name, icon_url=student.display_avatar)
@@ -105,4 +105,16 @@ def newTicketEmbed(student: discord.Member,category_tag: str, login: str, questi
     embed.add_field(name="Tag Category", value=category_tag)
     embed.timestamp = discord.utils.utcnow()
     embed.set_footer(text=f"Channel ID: {channel.id}")
+    return embed
+
+
+def rulesEmbed():
+    embed = discord.Embed(title="Règles relatives au tickets", color=discord.Color.green())
+    embed.description = """Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les 
+    modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
+    Le partage de code est autorisé, uniquement sur ce channel. Si vous souhaitez partager du code, merci de le mettre 
+    dans un [code block](https://support.discord.com/hc/fr/articles/210298617) ou par fichier.
+    
+    Cordialement,
+    L'équipe ACDC."""
     return embed
