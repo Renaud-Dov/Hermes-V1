@@ -46,3 +46,7 @@ class Config:
             if self.tickets[ticket].open_tag:
                 open_tickets.append(ticket)
         return open_tickets
+
+    def get_all_tickets_categories(self):
+        """Returns a list of all tickets categories"""
+        return [ticket.category_channel for ticket in self.tickets.values()]

@@ -5,9 +5,9 @@ from typing import Optional
 import discord
 from discord import app_commands
 from discord.app_commands import Choice
-from src.ConfigFormat import Config
-from src import Embed, Modal
-from src.tickets import create_private_channel
+from src.ConfigFormat import Config, TicketFormat
+from src import Embed, Modal, actions
+from src.tickets import create_private_channel, create_vocal_channel
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -38,6 +38,7 @@ async def updateCommands(interaction: discord.Interaction):
 
 
 @tree.command(name="ticket", description="Open a ticket")
+@app_commands.describe(category="Category tag assistants told you to use")
 async def open_new_ticket(interaction: discord.Interaction, category: str):
     config = Config("config/config.yaml")
 
@@ -50,43 +51,63 @@ async def open_new_ticket(interaction: discord.Interaction, category: str):
     await interaction.response.send_modal(Modal.AskQuestion(category, config_ticket))
 
 
+@tree.command(name="add_vocal", description="Add a vocal channel to a ticket")
+@app_commands.describe(student="Student to add to vocal channel")
+@app_commands.describe(channel="Linked text channel")
+async def add_vocal(interaction: discord.Interaction, category: str, channel: discord.TextChannel,
+                    student: discord.Member):
+    config = Config("config/config.yaml")
+    tags_list = config.get_open_tag_tickets()
+    if category not in tags_list:
+        await interaction.response.send_message(
+            "Invalid category. Please choose one of the following: " + ", ".join(tags_list), ephemeral=True)
+        return
+    config_ticket: TicketFormat = config.tickets[category]
+    if config_ticket.category_channel != channel.category_id:
+        await interaction.response.send_message("This channel is not linked to a ticket!", ephemeral=True)
+        return
+    voice_channel = await create_vocal_channel(client.get_channel(config_ticket.category_channel), student,
+                                               interaction.channel.name)
+    await interaction.response.send_message(f"Added a vocal channel to the ticket! {voice_channel.mention}")
+
+
+# @tree.command(name="remove", description="Remove text and vocal channels from a ticket")
+async def remove_ticket(interaction: discord.Interaction, category: str):
+    channel = interaction.channel
+
+    config = Config("config/config.yaml")
+    tags_list = config.get_open_tag_tickets()
+    if category not in tags_list:
+        await interaction.response.send_message(
+            "Invalid category. Please choose one of the following: " + ", ".join(tags_list), ephemeral=True)
+        return
+
+    config_ticket: TicketFormat = config.tickets.get(category)
+    if not config_ticket or config_ticket.category_channel != channel.category_id:
+        await interaction.response.send_message("This channel is not linked to a ticket!", ephemeral=True)
+        return
+    # find vocal channel with same name if exists
+    vocal_channel = discord.utils.get(interaction.channel.category.voice_channels, name=channel.name)
+    if vocal_channel is not None:
+        await vocal_channel.delete()
+    await channel.delete()
+    await interaction.response.send_message("Removed the ticket!", ephemeral=True)
+
+    log_chan = client.get_channel(config_ticket.webhook_channel)
+    await log_chan.send(f"Ticket {channel.name} has been close and deleted by {interaction.user.mention}")
+
+
 @tree.command(name="close", description="Mark a ticket as resolved")
 @app_commands.choices(type=[Choice(name="Resolved", value="Resolved"), Choice(name="Duplicate", value="Duplicate")])
 @app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
 async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
-    channel = interaction.channel
-    if not channel or channel.type != discord.ChannelType.public_thread:
-        await interaction.response.send_message("This is not a thread!", ephemeral=True)
-        return
+    await actions.close(interaction, type)
 
-    config = Config("config/config.yaml")
-    forum = config.get_forum(channel.parent_id)
-    if not forum:
-        await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
-        return
 
-    thread: discord.Thread = channel
-    log_chan = client.get_channel(forum.webhook_channel)
-    # find the message in the log channel
-    async for message in log_chan.history(limit=100):
-        if message.embeds and message.embeds[0].footer.text == f"Thread ID: {thread.id}":
-            embed: discord.Embed = message.embeds[0]
-            Embed.editEmbed(embed, interaction.user, "Resolved" if not type else type.value)
-            view = discord.ui.View()
-            view.add_item(Embed.urlButton(thread.jump_url))
-            await message.edit(embed=embed, view=view)
-            break
-
-    for tag in thread.parent.available_tags:  # find the tag to add
-        if tag.name == forum.end_tag:
-            await thread.add_tags(tag)
-            break
-
-    await interaction.response.send_message("Marked as done", ephemeral=True)
-    await channel.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value))
-
-    # await thread.edit(locked=True, archived=True)
-    # print(f"Marked thread {thread.id} as done")
+@tree.command(name="rename", description="Rename a ticket")
+@app_commands.describe(name="New name of the ticket")
+async def rename(interaction: discord.Interaction, name: str):
+    await actions.rename(interaction, name)
 
 
 @tree.command(name="git", description="Link to git survival guide")
@@ -96,7 +117,7 @@ async def git(interaction: discord.Interaction):
 
 @tree.command(name="abel")
 async def abel(interaction: discord.Interaction):
-    await interaction.response.defer()
+    await interaction.response.send_message("done", ephemeral=True)
     if interaction.user.id != 208480161421721600:
         return
     embed = discord.Embed(title="Va bosser Chartier", color=discord.Color.dark_red())
