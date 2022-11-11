@@ -123,11 +123,12 @@ def rulesTicketEmbed():
 def rulesEmbed():
     embed = discord.Embed(title="Règles relatives aux tickets", color=discord.Color.yellow())
     embed.description = """Merci de respecter les règles suivantes :
-    :one: Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les 
-    modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
+    :one: Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
     :two: Le partage de code est interdit, vos screens ne doivent pas contenir de code.
     :three: Regardez bien si votre question n'a pas déjà été posée avant de la poser, sinon elle sera considérée comme doublon.
     :four: Ne pas ping les assistants, ils vous répondront dès qu'ils le pourront.
+    :five: Spécifiez bien votre problème, et mettez un titre explicite à votre ticket, au cas où d'autres personnes se poserait la même question.
+    :six: Mettez un ou plusieurs tags à votre ticket, afin de faciliter la recherche de votre question par les assistants et les autres étudiants.
     
     Cordialement,
     L'équipe ACDC."""
