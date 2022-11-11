@@ -39,6 +39,7 @@ async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
 
     await interaction.response.send_message("Marked as done", ephemeral=True)
     await channel.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value))
+    await thread.edit(archived=True)
 
 
 async def rename(interaction: discord.Interaction, name: str):
