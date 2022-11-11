@@ -62,7 +62,7 @@ def newThreadEmbed(thread: discord.Thread, reopened=False):
 
 
 def doneEmbed(member: discord.Member, status: str):
-    gollumId = "232987222603726850"
+    gollumId = 232987222603726850
     
     if member.id != gollumId :
         embed = discord.Embed(title="Ticket has been closed by an assistant", color=discord.Color.blue())
