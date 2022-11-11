@@ -120,9 +120,6 @@ async def abel(interaction: discord.Interaction):
     await interaction.response.send_message("done", ephemeral=True)
     if interaction.user.id != 208480161421721600:
         return
-    embed = discord.Embed(title="Va bosser Chartier", color=discord.Color.dark_red())
-    embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
-    embed.set_image(url="https://media.tenor.com/SvQlro63ZscAAAAC/pas-content.gif")
 
     await interaction.channel.send(embed=rulesEmbed())
 

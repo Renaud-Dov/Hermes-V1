@@ -108,12 +108,26 @@ def newTicketEmbed(student: discord.Member, category_tag: str, login: str, quest
     return embed
 
 
-def rulesEmbed():
+def rulesTicketEmbed():
     embed = discord.Embed(title="Règles relatives au tickets", color=discord.Color.green())
     embed.description = """Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les 
     modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
     Le partage de code est autorisé, uniquement sur ce channel. Si vous souhaitez partager du code, merci de le mettre 
     dans un [code block](https://support.discord.com/hc/fr/articles/210298617) ou par fichier.
+    
+    Cordialement,
+    L'équipe ACDC."""
+    return embed
+
+
+def rulesEmbed():
+    embed = discord.Embed(title="Règles relatives au tickets", color=discord.Color.yellow())
+    embed.description = """Merci de respecter les règles suivantes :
+    :one: Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les 
+    modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
+    :two: Le partage de code est interdit, vos screens ne doivent pas contenir de code.
+    :three: Regardez bien si votre question n'a pas déjà été posée avant de la poser, sinon elle sera considérée comme doublon.
+    :four: Ne pas ping les assistants, ils vous répondront dès qu'ils le pourront.
     
     Cordialement,
     L'équipe ACDC."""
