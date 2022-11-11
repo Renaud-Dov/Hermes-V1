@@ -109,7 +109,7 @@ def newTicketEmbed(student: discord.Member, category_tag: str, login: str, quest
 
 
 def rulesTicketEmbed():
-    embed = discord.Embed(title="Règles relatives au tickets", color=discord.Color.green())
+    embed = discord.Embed(title="Règles relatives aux tickets privés", color=discord.Color.green())
     embed.description = """Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les 
     modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
     Le partage de code est autorisé, uniquement sur ce channel. Si vous souhaitez partager du code, merci de le mettre 
@@ -121,7 +121,7 @@ def rulesTicketEmbed():
 
 
 def rulesEmbed():
-    embed = discord.Embed(title="Règles relatives au tickets", color=discord.Color.yellow())
+    embed = discord.Embed(title="Règles relatives aux tickets", color=discord.Color.yellow())
     embed.description = """Merci de respecter les règles suivantes :
     :one: Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les 
     modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
