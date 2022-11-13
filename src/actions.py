@@ -51,7 +51,7 @@ async def rename(interaction: discord.Interaction, name: str):
     thread: discord.Thread = channel
     old_name = thread.name
     # keep [#NUMBER] at the beginning of the name
-    match = re.match(r"(\[#\d+\])", old_name)
+    match = re.match(r"(\[\d+\])", old_name)
     if match:
         name = match.group(1) + " " + name
     await thread.edit(name=name)
