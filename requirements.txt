@@ -1,2 +1,3 @@
-git+https://github.com/Rapptz/discord.py.git@master
+discord.py~=2.1
 PyYAML~=6.0
+firebase-admin

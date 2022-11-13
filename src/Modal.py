@@ -4,7 +4,7 @@ import random
 
 from src.ConfigFormat import TicketFormat
 from src.Embed import newTicketEmbed, urlButton, rulesTicketEmbed
-from src.tickets import create_private_channel
+from src.tools import create_private_channel
 
 
 class AskQuestion(ui.Modal, title='Votre question'):
