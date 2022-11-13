@@ -8,7 +8,7 @@ from discord.app_commands import Choice
 from src.ConfigFormat import Config, TicketFormat
 from src import Embed, Modal, actions
 from src.Embed import rulesEmbed
-from src.tickets import create_private_channel, create_vocal_channel
+from src.tools import create_private_channel, create_vocal_channel
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -71,7 +71,6 @@ async def add_vocal(interaction: discord.Interaction, category: str, student: di
     await interaction.response.send_message(f"Added a vocal channel to the ticket! {voice_channel.mention}")
 
 
-# @tree.command(name="remove", description="Remove text and vocal channels from a ticket")
 async def remove_ticket(interaction: discord.Interaction, category: str):
     channel = interaction.channel
 
@@ -97,13 +96,12 @@ async def remove_ticket(interaction: discord.Interaction, category: str):
     await log_chan.send(f"Ticket {channel.name} has been close and deleted by {interaction.user.mention}")
 
 
-@tree.command(name="close", description="Mark a ticket as resolved")
-@app_commands.choices(type=[Choice(name="Resolved", value="Resolved"), Choice(name="Duplicate", value="Duplicate")])
-@app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
-async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
-    await actions.close(interaction, type)
+# @tree.command(name="remove", description="Remove text and vocal channels from a ticket")
 
 
+############################################
+#               LINKS                      #
+############################################
 @tree.command(name="rename", description="Rename a ticket")
 @app_commands.describe(name="New name of the ticket")
 async def rename(interaction: discord.Interaction, name: str):
@@ -115,18 +113,28 @@ async def git(interaction: discord.Interaction):
     await interaction.response.send_message("https://moodle.cri.epita.fr/mod/page/view.php?id=18488")
 
 
+@tree.command(name="intra", description="Link to Forge Intra")
+async def intra(interaction: discord.Interaction):
+    await interaction.response.send_message("https://intra.forge.epita.fr/epita-prepa-acdc")
+
+
 @tree.command(name="abel")
-async def abel(interaction: discord.Interaction):
+async def abel(interaction: discord.Interaction, name: str):
     await interaction.response.send_message("done", ephemeral=True)
     if interaction.user.id != 208480161421721600:
         return
 
-    await interaction.channel.send(embed=rulesEmbed())
+    await interaction.channel.send(name)
 
 
-@tree.command(name="intra", description="Link to Forge Intra")
-async def intra(interaction: discord.Interaction):
-    await interaction.response.send_message("https://intra.forge.epita.fr/epita-prepa-acdc")
+############################################
+#              FORUM TICKETS               #
+############################################
+@tree.command(name="close", description="Mark a ticket as resolved")
+@app_commands.choices(type=[Choice(name="Resolved", value="Resolved"), Choice(name="Duplicate", value="Duplicate")])
+@app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
+async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
+    await actions.close(interaction, type)
 
 
 @client.event
@@ -145,6 +153,21 @@ async def on_thread_create(thread: discord.Thread):
     await channel.send(embed=embed, view=view)
 
     await thread.join()
+
+
+@client.event
+async def on_thread_delete(thread: discord.Thread):
+    pass
+
+
+@client.event
+async def on_thread_remove(thread: discord.Thread):
+    pass
+
+
+@client.event
+async def on_thread_update(before: discord.Thread, after: discord.Thread):
+    pass
 
 
 @client.event
