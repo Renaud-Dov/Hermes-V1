@@ -177,8 +177,7 @@ async def on_thread_member_join(member: discord.ThreadMember):
     config_forum = config.get_forum(member.thread.parent_id)
     if not config_forum or member.thread.archived:
         return
-
-    category = tools.find_manager_category(member, config)
+    category = tools.find_manager_category(member.thread.guild.get_member(member.id), config)
     if not category:
         return
     log_chan = client.get_channel(config_forum.webhook_channel)
