@@ -3,12 +3,11 @@ import re
 import discord
 from discord.app_commands import Choice
 
-from src import Embed
+from src import Embed, tools
 from src.ConfigFormat import Config
 
 
 async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
-    pass
     channel = interaction.channel
     if not channel or channel.type != discord.ChannelType.public_thread:
         await interaction.response.send_message("This is not a thread!", ephemeral=True)
@@ -32,14 +31,13 @@ async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
             await message.edit(embed=embed, view=view)
             break
 
-    for tag in thread.parent.available_tags:  # find the tag to add
-        if tag.name == forum.end_tag:
-            await thread.add_tags(tag)
-            break
+    tag = tools.find_tag(thread.parent, forum.end_tag)
+    if tag:
+        await thread.add_tags(tag)
 
     await interaction.response.send_message("Marked as done", ephemeral=True)
-    await channel.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value))
-    await thread.edit(archived=True)
+    await channel.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value, config))
+    await thread.edit(archived=True)  # TODO: lock thread
 
 
 async def rename(interaction: discord.Interaction, name: str):

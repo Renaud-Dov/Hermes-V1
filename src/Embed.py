@@ -1,5 +1,6 @@
 import discord
 
+from src import tools
 from src.ConfigFormat import Config
 
 
@@ -61,8 +62,12 @@ def newThreadEmbed(thread: discord.Thread, reopened=False):
     return embed
 
 
-def doneEmbed(member: discord.Member, status: str):
-    embed = discord.Embed(title="Ticket has been closed by an assistant", color=discord.Color.blue())
+def doneEmbed(member: discord.Member, status: str, config: Config):
+    embed = discord.Embed(title="Ticket has been closed by an assistant.", color=discord.Color.blue())
+    category = tools.find_manager_category(member, config)
+    if category:
+        embed.title = category.ticket_msg
+
     if status == "Duplicate":
         embed.colour = discord.Colour.red()
         embed.title = "This question has already been answered. Please check if your question is already answered " \

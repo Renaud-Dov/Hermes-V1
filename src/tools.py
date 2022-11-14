@@ -1,4 +1,8 @@
+from typing import Optional
+
 import discord
+
+from src.ConfigFormat import Config, ManagerFormat
 
 
 async def create_private_channel(category: discord.CategoryChannel, student: discord.Member, name: str):
@@ -15,3 +19,22 @@ async def create_vocal_channel(category: discord.CategoryChannel, student: disco
                                                                                        view_channel=True,
                                                                                        use_voice_activation=True))
     return voice_channel
+
+
+def find_manager_category(member: discord.Member, config: Config) -> Optional[ManagerFormat]:
+    """Finds the category where the member is a manager"""
+    managers = config.settings.managers
+    for managers_category in managers:
+        if member.id in managers_category.users:
+            return managers_category
+        for role in member.roles:
+            if role.id in managers_category.roles:
+                return managers_category
+    return None
+
+
+def find_tag(forum: discord.ForumChannel, tag_name: str):
+    for tag in forum.available_tags:
+        if tag.name == tag_name:
+            return tag
+    return None

@@ -9,8 +9,8 @@ class ManagerFormat:
         self.manager = manager
         self.category = manager["category"]
         self.ticket_msg = manager["ticket_msg"]
-        self.roles: List[int] = manager["roles"] if manager["roles"] in manager else []
-        self.users: List[int] = manager["users"] if manager["users"] in manager else []
+        self.roles: List[int] = manager["roles"] if "roles" in manager else []
+        self.users: List[int] = manager["users"] if "users" in manager else []
 
 
 class SettingsFormat:

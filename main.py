@@ -6,9 +6,8 @@ import discord
 from discord import app_commands
 from discord.app_commands import Choice
 from src.ConfigFormat import Config, TicketFormat
-from src import Embed, Modal, actions
-from src.Embed import rulesEmbed
-from src.tools import create_private_channel, create_vocal_channel
+from src import Embed, Modal, actions, tools
+from src.tools import create_vocal_channel
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -31,9 +30,11 @@ async def on_ready():
         activity=discord.Activity(type=discord.ActivityType.watching, name="les élèves"))
 
 
-@tree.command(guild=discord.Object(id=999964493608144907), name="update", description="Update commands")
+@tree.command(guilds=[discord.Object(id=999964493608144907),
+                      discord.Object(id=1033684799912677388)],
+              name="update", description="Update commands")
 async def updateCommands(interaction: discord.Interaction):
-    await tree.sync(guild=discord.Object(id=999964493608144907))
+    await tree.sync(guild=discord.Object(id=interaction.guild_id))
     await tree.sync()
     await interaction.response.send_message("Updated commands")
 
@@ -176,7 +177,10 @@ async def on_thread_member_join(member: discord.ThreadMember):
     config_forum = config.get_forum(member.thread.parent_id)
     if not config_forum or member.thread.archived:
         return
-    if member.id not in config.settings.managers: return
+
+    category = tools.find_manager_category(member, config)
+    if not category:
+        return
     log_chan = client.get_channel(config_forum.webhook_channel)
     # find the message in the log channel
     async for message in log_chan.history(limit=100):
