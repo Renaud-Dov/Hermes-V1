@@ -1,13 +1,22 @@
-from typing import List
+from typing import List, Optional
 
 import yaml
 import re
 
 
+class ManagerFormat:
+    def __init__(self, manager: dict):
+        self.manager = manager
+        self.category = manager["category"]
+        self.ticket_msg = manager["ticket_msg"]
+        self.roles: List[int] = manager["roles"] if manager["roles"] in manager else []
+        self.users: List[int] = manager["users"] if manager["users"] in manager else []
+
+
 class SettingsFormat:
-    def __init__(self, managers: List[int]):
+    def __init__(self, managers: List[dict]):
         # regex for matching a discord snowflake
-        self.managers = [int(re.match("^[0-9]+", str(m)).group(0)) for m in managers]
+        self.managers = [ManagerFormat(m) for m in managers]
 
 
 class ForumFormat:
