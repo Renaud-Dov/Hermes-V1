@@ -41,6 +41,7 @@ async def updateCommands(interaction: discord.Interaction):
 
 @tree.command(name="ticket", description="Open a ticket")
 @app_commands.describe(category="Category tag assistants told you to use")
+@app_commands.guild_only()
 async def open_new_ticket(interaction: discord.Interaction, category: str):
     config = Config("config/config.yaml")
 
@@ -55,6 +56,7 @@ async def open_new_ticket(interaction: discord.Interaction, category: str):
 
 @tree.command(name="add_vocal", description="Add a vocal channel to a ticket")
 @app_commands.describe(student="Student to add to vocal channel")
+@app_commands.guild_only()
 async def add_vocal(interaction: discord.Interaction, category: str, student: discord.Member):
     channel = interaction.channel
     config = Config("config/config.yaml")
@@ -105,6 +107,7 @@ async def remove_ticket(interaction: discord.Interaction, category: str):
 ############################################
 @tree.command(name="rename", description="Rename a ticket")
 @app_commands.describe(name="New name of the ticket")
+@app_commands.guild_only()
 async def rename(interaction: discord.Interaction, name: str):
     await actions.rename(interaction, name)
 
@@ -120,6 +123,7 @@ async def intra(interaction: discord.Interaction):
 
 
 @tree.command(name="abel")
+@app_commands.guild_only()
 async def abel(interaction: discord.Interaction, name: str):
     await interaction.response.send_message("done", ephemeral=True)
     if interaction.user.id != 208480161421721600:
@@ -134,6 +138,7 @@ async def abel(interaction: discord.Interaction, name: str):
 @tree.command(name="close", description="Mark a ticket as resolved")
 @app_commands.choices(type=[Choice(name="Resolved", value="Resolved"), Choice(name="Duplicate", value="Duplicate")])
 @app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
+@app_commands.guild_only()
 async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
     await actions.close(interaction, type)
 
