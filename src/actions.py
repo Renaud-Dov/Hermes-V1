@@ -54,3 +54,52 @@ async def rename(interaction: discord.Interaction, name: str):
         name = match.group(1) + " " + name
     await thread.edit(name=name)
     await interaction.response.send_message(f"Renamed from `{old_name}` to `{name}`", ephemeral=True)
+
+
+async def delete_thread(client: discord.Client, thread: discord.Thread):
+    config_forum = Config("config/config.yaml").get_forum(thread.parent_id)
+    if not config_forum:
+        return
+
+    embed = Embed.deletedThreadEmbed(thread)
+    channel_id = config_forum.webhook_channel
+    channel = client.get_channel(channel_id)
+    await channel.send(embed=embed)
+
+
+async def thread_create(client: discord.Client, thread: discord.Thread):
+    config_forum = Config("config/config.yaml").get_forum(thread.parent_id)
+    if not config_forum:
+        return
+
+    await thread.edit(auto_archive_duration=10080)  # 7 days to archive
+    embed = Embed.newThreadEmbed(thread)
+    view = discord.ui.View()
+    view.add_item(Embed.urlButton(thread.jump_url))
+    channel_id = config_forum.webhook_channel
+    channel = client.get_channel(channel_id)
+    await channel.send(embed=embed, view=view)
+
+    await thread.join()
+
+
+async def update_thread(client: discord.Client, before: discord.Thread, after: discord.Thread):
+    return None
+
+
+async def thread_member_join(client: discord.Client, member: discord.ThreadMember):
+    config = Config("config/config.yaml")
+    config_forum = config.get_forum(member.thread.parent_id)
+    if not config_forum or member.thread.archived:
+        return
+    category = tools.find_manager_category(member.thread.guild.get_member(member.id), config)
+    if not category:
+        return
+    log_chan = client.get_channel(config_forum.webhook_channel)
+    # find the message in the log channel
+    async for message in log_chan.history(limit=100):
+        if message.embeds and message.embeds[0].footer.text == f"Thread ID: {member.thread.id}":
+            embed: discord.Embed = message.embeds[0]
+            Embed.editEmbed(embed, client.get_user(member.id), "Joined")
+            await message.edit(embed=embed)
+            break

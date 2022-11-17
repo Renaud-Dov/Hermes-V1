@@ -138,3 +138,11 @@ def rulesEmbed():
     Cordialement,
     L'équipe ACDC."""
     return embed
+
+
+def deletedThreadEmbed(thread: discord.Thread):
+    embed = discord.Embed(title="Ticket has been deleted", color=discord.Color.red())
+    embed.description = f"Ticket {thread.name} has been deleted by {thread.owner.mention}"
+    embed.timestamp = discord.utils.utcnow()
+    embed.set_footer(text=f"Thread ID: {thread.id}")
+    return embed

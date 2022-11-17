@@ -140,54 +140,31 @@ async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
 
 @client.event
 async def on_thread_create(thread: discord.Thread):
-    config = Config("config/config.yaml")
-    config_forum = config.get_forum(thread.parent_id)
-    if not config_forum:
-        return
-
-    await thread.edit(auto_archive_duration=10080)  # 7 days to archive
-    embed = Embed.newThreadEmbed(thread)
-    view = discord.ui.View()
-    view.add_item(Embed.urlButton(thread.jump_url))
-    channel_id = config_forum.webhook_channel
-    channel = client.get_channel(channel_id)
-    await channel.send(embed=embed, view=view)
-
-    await thread.join()
+    await actions.thread_create(client, thread)
 
 
 @client.event
 async def on_thread_delete(thread: discord.Thread):
-    pass
+    logger.info(f"Thread {thread.name}{thread.id} has been deleted")
+    await actions.delete_thread(client, thread)
 
 
 @client.event
 async def on_thread_remove(thread: discord.Thread):
-    pass
+    logger.info(f"Thread {thread.name}{thread.id} has been removed")
+    await actions.delete_thread(client, thread)
 
 
 @client.event
 async def on_thread_update(before: discord.Thread, after: discord.Thread):
-    pass
+    logger.info(f"Thread {before.name}{before.id} has been updated")
+    await actions.update_thread(client, before, after)
 
 
 @client.event
 async def on_thread_member_join(member: discord.ThreadMember):
-    config = Config("config/config.yaml")
-    config_forum = config.get_forum(member.thread.parent_id)
-    if not config_forum or member.thread.archived:
-        return
-    category = tools.find_manager_category(member.thread.guild.get_member(member.id), config)
-    if not category:
-        return
-    log_chan = client.get_channel(config_forum.webhook_channel)
-    # find the message in the log channel
-    async for message in log_chan.history(limit=100):
-        if message.embeds and message.embeds[0].footer.text == f"Thread ID: {member.thread.id}":
-            embed: discord.Embed = message.embeds[0]
-            Embed.editEmbed(embed, client.get_user(member.id), "Joined")
-            await message.edit(embed=embed)
-            break
+    logger.info(f"Thread {member.thread.name}{member.thread.id} has a new member {member.user.name}{member.user.id}")
+    await actions.thread_member_join(client, member)
 
 
 try:

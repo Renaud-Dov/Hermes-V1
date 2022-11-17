@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import yaml
 import re
@@ -31,6 +31,7 @@ class TicketFormat:
         self.open_tag = ticket["open_tag"]
         self.webhook_channel = ticket["webhook_channel"]
         self.category_channel = ticket["category_channel"]
+        self.groups: List[str] = ticket["groups"] if "groups" in ticket else []
 
 
 class Config:
@@ -41,6 +42,7 @@ class Config:
 
         self.forums = [ForumFormat(list(forum.values())[0]) for forum in self._config['forums']]
         self.tickets = {key: TicketFormat(value) for key, value in self._config['tickets'].items()}
+        self.groups: Dict[str, int] = self._config['groups']
 
     def get_forum(self, forum_id):
         for forum in self.forums:
@@ -56,6 +58,15 @@ class Config:
                 open_tickets.append(ticket)
         return open_tickets
 
+    def get_tickets_groupsIDS(self, ticket: TicketFormat) -> List[int]:
+        """Returns a list of group ids for a ticket"""
+        return [self.groups[group] for group in ticket.groups]
+
     def get_all_tickets_categories(self):
         """Returns a list of all tickets categories"""
         return [ticket.category_channel for ticket in self.tickets.values()]
+
+    def got_ticket_group(self, ticket: TicketFormat, roles: List[int]):
+        """Checks if the user has a role that is in the ticket groups"""
+        tickets_groups = self.get_tickets_groupsIDS(ticket)
+        return any(role in tickets_groups for role in roles)
