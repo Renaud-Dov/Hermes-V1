@@ -6,7 +6,7 @@ import discord
 from discord import app_commands
 from discord.app_commands import Choice
 from src.ConfigFormat import Config, TicketFormat
-from src import Embed, Modal, actions, tools
+from src import Modal, actions
 from src.tools import create_vocal_channel
 
 logger = logging.getLogger('discord')
@@ -25,7 +25,7 @@ tree = app_commands.CommandTree(client)
 
 @client.event
 async def on_ready():
-    print("Bot is ready!")
+    logger.info(f'{client.user} has connected to Discord!')
     await client.change_presence(
         activity=discord.Activity(type=discord.ActivityType.watching, name="les élèves"))
 
@@ -145,30 +145,31 @@ async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
 
 @client.event
 async def on_thread_create(thread: discord.Thread):
+    logger.debug(f"Thread{thread.id} has been create")
     await actions.thread_create(client, thread)
 
 
 @client.event
 async def on_thread_delete(thread: discord.Thread):
-    logger.info(f"Thread {thread.name}{thread.id} has been deleted")
+    logger.debug(f"Thread {thread.name} {thread.id} has been deleted")
     await actions.delete_thread(client, thread)
 
 
-@client.event
-async def on_thread_remove(thread: discord.Thread):
-    logger.info(f"Thread {thread.name}{thread.id} has been removed")
-    await actions.delete_thread(client, thread)
+# @client.event
+# async def on_thread_remove(thread: discord.Thread):
+#     logger.info(f"Thread {thread.name} {thread.id} has been removed")
+#     await actions.delete_thread(client, thread)
 
 
 @client.event
 async def on_thread_update(before: discord.Thread, after: discord.Thread):
-    logger.info(f"Thread {before.name}{before.id} has been updated")
+    logger.debug(f"Thread {before.name} {before.id} has been updated")
     await actions.update_thread(client, before, after)
 
 
 @client.event
 async def on_thread_member_join(member: discord.ThreadMember):
-    logger.info(f"Thread {member.thread.name}{member.thread.id} has a new member {member.user.name}{member.user.id}")
+    logger.debug(f"Thread {member.thread.name} {member.thread.id} has a new member {member.user.name}{member.user.id}")
     await actions.thread_member_join(client, member)
 
 

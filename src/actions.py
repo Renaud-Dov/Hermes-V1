@@ -5,6 +5,7 @@ from discord.app_commands import Choice
 
 from src import Embed, tools
 from src.ConfigFormat import Config
+from src.tools import find_tag
 
 
 async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
@@ -81,6 +82,9 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
     await channel.send(embed=embed, view=view)
 
     await thread.join()
+    if find_tag(thread.parent, "Moulinette"):
+        await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
+                          "login and the tag of your trace below.")
 
 
 async def update_thread(client: discord.Client, before: discord.Thread, after: discord.Thread):
