@@ -91,12 +91,12 @@ async def update_thread(client: discord.Client, before: discord.Thread, after: d
     return None
 
 
-async def thread_member_join(client: discord.Client, member: discord.ThreadMember):
+async def thread_member_join(client: discord.Client, member: discord.Member):
     config = Config("config/config.yaml")
     config_forum = config.get_forum(member.thread.parent_id)
     if not config_forum or member.thread.archived:
         return
-    category = tools.find_manager_category(member.thread.guild.get_member(member.id), config)
+    category = tools.find_manager_category(member, config)
     if not category:
         return
     log_chan = client.get_channel(config_forum.webhook_channel)
@@ -104,6 +104,6 @@ async def thread_member_join(client: discord.Client, member: discord.ThreadMembe
     async for message in log_chan.history(limit=100):
         if message.embeds and message.embeds[0].footer.text == f"Thread ID: {member.thread.id}":
             embed: discord.Embed = message.embeds[0]
-            Embed.editEmbed(embed, client.get_user(member.id), "Joined")
+            Embed.editEmbed(embed, member, "Joined")
             await message.edit(embed=embed)
             break

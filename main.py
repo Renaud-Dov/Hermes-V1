@@ -168,8 +168,9 @@ async def on_thread_update(before: discord.Thread, after: discord.Thread):
 
 
 @client.event
-async def on_thread_member_join(member: discord.ThreadMember):
-    logger.debug(f"Thread {member.thread.name} {member.thread.id} has a new member {member.user.name}{member.user.id}")
+async def on_thread_member_join(thread_member: discord.ThreadMember):
+    member: discord.Member = thread_member.thread.guild.get_member(thread_member.id)
+    logger.debug(f"Thread {member.thread.name} {member.thread.id} has a new member {member.display_name}({member.user.id})")
     await actions.thread_member_join(client, member)
 
 
