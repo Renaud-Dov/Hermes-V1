@@ -82,7 +82,8 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
     await channel.send(embed=embed, view=view)
 
     await thread.join()
-    if find_tag(thread.parent, "Moulinette"):
+
+    if "Moulinette" in [tag.name for tag in thread.applied_tags]:
         await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
                           "login and the tag of your trace below.")
 
