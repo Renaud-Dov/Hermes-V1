@@ -28,7 +28,7 @@ tree = app_commands.CommandTree(client)
 async def on_ready():
     logger.info(f'{client.user} has connected to Discord!')
     await client.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name="les élèves"))
+        activity=discord.Activity(type=discord.ActivityType.watching, name="les dieux"))
 
 
 @tree.command(guilds=[discord.Object(id=999964493608144907),
