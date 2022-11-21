@@ -1,14 +1,17 @@
 import logging
 import os
+import random
+import uuid
 from typing import Optional
 
 import discord
 from discord import app_commands
-from discord.app_commands import Choice
+from discord.app_commands import AppCommandError
+
 from src.ConfigFormat import Config, TicketFormat
 from src import Modal, actions
 from src.tools import create_vocal_channel
-from src.types import TypeStatusTicket, TypeClose
+from src.types import TypeClose
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -90,7 +93,8 @@ async def remove_ticket(interaction: discord.Interaction, category: str):
         await interaction.response.send_message("This channel is not linked to a ticket!", ephemeral=True)
         return
     # find vocal channel with same name if exists
-    vocal_channel = discord.utils.get(interaction.channel.category.voice_channels, name=channel.name)
+    vocal_channel: discord.VoiceChannel = await discord.utils.get(interaction.channel.category.voice_channels,
+                                                                  name=channel.name)
     if vocal_channel is not None:
         await vocal_channel.delete()
     await channel.delete()
@@ -170,8 +174,24 @@ async def on_thread_update(before: discord.Thread, after: discord.Thread):
 @client.event
 async def on_thread_member_join(thread_member: discord.ThreadMember):
     member: discord.Member = thread_member.thread.guild.get_member(thread_member.id)
-    logger.debug(f"Thread {member.thread.name} {member.thread.id} has a new member {member.display_name}({member.user.id})")
+    logger.debug(f"Thread {member.thread.name} {member.thread.id}"
+                 f" has a new member {member.display_name}({member.user.id})")
     await actions.thread_member_join(client, member)
+
+
+@close.error
+@add_vocal.error
+@rename.error
+@rename.error
+async def errors(interaction: discord.Interaction, error: AppCommandError):
+    id_err = uuid.uuid4()
+    embed = discord.Embed(title="λάθος",
+                          description="An error occurred. Please try again later or contact an assistant",
+                          color=discord.Color.red())
+    embed.add_field(name="ID Error", value=id_err, inline=False)
+    embed.set_footer(text="μην τα σπας όλα")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+    logger.error(f"[{id_err}] {error}")
 
 
 try:

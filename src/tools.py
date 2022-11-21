@@ -38,3 +38,10 @@ def find_tag(forum: discord.ForumChannel, tag_name: str):
         if tag.name == tag_name:
             return tag
     return None
+
+
+async def find_ticket_from_logs(log_chan: discord.TextChannel, thread_id: str):
+    async for message in log_chan.history(limit=100):
+        if message.embeds and message.embeds[0].footer.text.split(" ")[-1] == thread_id:
+            return message
+    return None

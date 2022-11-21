@@ -2,10 +2,10 @@ import asyncio
 from typing import Optional
 import re
 import discord
-from discord.app_commands import Choice
 
 from src import Embed, tools
 from src.ConfigFormat import Config
+from src.tools import find_ticket_from_logs
 from src.types import TypeStatusTicket, TypeClose, status_converter
 
 
@@ -24,16 +24,15 @@ async def close(interaction: discord.Interaction, type: TypeClose):
     thread: discord.Thread = channel
     log_chan = interaction.client.get_channel(forum.webhook_channel)
     # find the message in the log channel
-    async for message in log_chan.history(limit=100):
-        if message.embeds and message.embeds[0].footer.text == f"Thread ID: {thread.id}":
-            embed: discord.Embed = message.embeds[0]
-            status = status_converter(type)
-            Embed.editEmbed(embed, interaction.user, status)
-            view = discord.ui.View()
-            view.add_item(Embed.urlButton(thread.jump_url))
-            view.add_item(Embed.statusButton(status))
-            await message.edit(embed=embed, view=view)
-            break
+    message = await find_ticket_from_logs(log_chan, str(thread.id))
+    if message:
+        embed: discord.Embed = message.embeds[0]
+        status = status_converter(type)
+        Embed.editEmbed(embed, interaction.user, status)
+        view = discord.ui.View()
+        view.add_item(Embed.urlButton(thread.jump_url))
+        view.add_item(Embed.statusButton(status))
+        await message.edit(embed=embed, view=view)
 
     tag = tools.find_tag(thread.parent, forum.end_tag)
     if tag:
@@ -106,10 +105,8 @@ async def thread_member_join(client: discord.Client, member: discord.Member):
     if not category:
         return
     log_chan = client.get_channel(config_forum.webhook_channel)
-    # find the message in the log channel
-    async for message in log_chan.history(limit=100):
-        if message.embeds and message.embeds[0].footer.text == f"Thread ID: {member.thread.id}":
-            embed: discord.Embed = message.embeds[0]
-            Embed.editEmbed(embed, member, "Joined")
-            await message.edit(embed=embed)
-            break
+    message = await find_ticket_from_logs(log_chan, str(member.thread.id))
+    if message:
+        embed: discord.Embed = message.embeds[0]
+        Embed.editEmbed(embed, member, TypeStatusTicket.Joined)
+        await message.edit(embed=embed)
