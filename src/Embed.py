@@ -2,7 +2,7 @@ import discord
 
 from src import tools, actions
 from src.ConfigFormat import Config
-from src.types import TypeStatusTicket
+from src.types import TypeStatusTicket, TypeClose
 
 
 def urlButton(url: str):
@@ -45,18 +45,23 @@ def newThreadEmbed(thread: discord.Thread, status: TypeStatusTicket):
     return embed
 
 
-def doneEmbed(member: discord.Member, status: str, config: Config):
-    embed = discord.Embed(title="Ticket has been closed by an assistant.", color=discord.Color.blue())
+def doneEmbed(member: discord.Member, status: TypeClose, config: Config, reason: str = None):
+    embed = discord.Embed(title="Ticket has been closed by an assistant.", description=reason,
+                          color=discord.Color.blue())
     category = tools.find_manager_category(member, config)
     if category:
         embed.title = category.ticket_msg
 
-    if status == "Duplicate":
-        embed.colour = discord.Colour.red()
-        embed.title = "This question has already been answered. Please check if your question is already answered " \
-                      "before creating a new ticket."
+    match status:
+        case TypeClose.Duplicate:
+            embed.colour = discord.Colour.red()
+            embed.title = "This question has already been answered. Please check if your question is already answered " \
+                          "before creating a new ticket."
+        case TypeClose.Delete:
+            embed.colour = discord.Colour.red()
+            embed.title = "This ticket has been deleted. Please check rules before creating a new ticket."
 
-    embed.set_author(name=member.display_name, icon_url=member.display_avatar)  # TODO: change name to server name
+    embed.set_author(name=member.display_name, icon_url=member.display_avatar)
     embed.timestamp = discord.utils.utcnow()
     embed.set_footer(text="If you have any further questions, please create a new ticket.")
     return embed
@@ -76,6 +81,18 @@ def editEmbed(embed: discord.Embed, member: discord.Member, status: TypeStatusTi
         case TypeStatusTicket.Joined:
             embed.set_field_at(0, name="Status", value="Joined 🟢")
             embed.colour = discord.Colour.orange()
+        case TypeStatusTicket.Recreated:
+            embed.set_field_at(0, name="Status", value="Recreated 🟢")
+            embed.colour = discord.Colour.orange()
+        case TypeStatusTicket.Created:
+            embed.set_field_at(0, name="Status", value="Open 🟢")
+            embed.colour = discord.Colour.orange()
+        case TypeStatusTicket.Other:
+            embed.set_field_at(0, name="Status", value="Other (Error)")
+            embed.colour = discord.Colour.purple()
+        case TypeStatusTicket.Deleted:
+            embed.set_field_at(0, name="Status", value="Deleted 🔴")
+            embed.colour = discord.Colour.red()
 
     for field in embed.fields:
         if field.name == "Action done by":
@@ -124,18 +141,22 @@ def rulesEmbed():
     return embed
 
 
-def deletedThreadEmbed(thread: discord.Thread):
+def deletedThreadEmbed(thread: discord.Thread, member: discord.Member = None, reason: str = None):
     embed = discord.Embed(title="Ticket has been deleted", color=discord.Color.red())
-    embed.description = f"Ticket {thread.name} has been deleted by {thread.owner.mention}"
+    embed.description = reason
+    if member:
+        embed.set_author(name=member.display_name, icon_url=member.display_avatar)
+    embed.add_field(name="Thread name", value=thread.name)
+    embed.add_field(name="Thread Creator", value=thread.owner.mention)
+
     embed.timestamp = discord.utils.utcnow()
-    embed.set_footer(text=f"Thread ID: {thread.id}")
     return embed
 
 
 def statusButton(status: TypeStatusTicket):
     label = ""
     style = discord.ButtonStyle.grey
-    emoji = ""
+    emoji = None
     match status:
         case TypeStatusTicket.Created:
             label = "Created"

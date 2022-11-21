@@ -9,7 +9,7 @@ from src.tools import find_ticket_from_logs
 from src.types import TypeStatusTicket, TypeClose, status_converter
 
 
-async def close(interaction: discord.Interaction, type: TypeClose):
+async def close(interaction: discord.Interaction, type: TypeClose, reason: str = None):
     thread: discord.Thread = interaction.channel
     if not thread or thread.type != discord.ChannelType.public_thread or thread.locked:
         await interaction.response.send_message("This is not a opened thread!", ephemeral=True)
@@ -31,16 +31,22 @@ async def close(interaction: discord.Interaction, type: TypeClose):
         view = discord.ui.View()
         view.add_item(Embed.urlButton(thread.jump_url))
         view.add_item(Embed.statusButton(status))
-        await message.edit(embed=embed, view=view)
+        await message.edit(embed=embed)
 
     tag = tools.find_tag(thread.parent, forum.end_tag)
     if tag:
         await thread.add_tags(tag)
 
-    await interaction.response.send_message("Marked as done", ephemeral=True)
-    await thread.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value, config))
-    await thread.edit(archived=True, locked=True)
-    await thread.owner.send(embed=Embed.reopenEmbed(thread, interaction.user), view=Embed.ReopenView())
+    response_embed = Embed.doneEmbed(interaction.user, type, config, reason)
+    if type == TypeClose.Resolve or type == TypeClose.Duplicate:
+        await thread.send(embed=response_embed)
+        await thread.edit(archived=True, locked=True)
+        await thread.owner.send(embed=Embed.reopenEmbed(thread, interaction.user), view=Embed.ReopenView())
+        await interaction.response.send_message("Marked as done", ephemeral=True)
+    elif type == TypeClose.Delete:
+        await thread.owner.send(embed=response_embed)
+        await thread.delete()
+        await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
 
 
 async def rename(interaction: discord.Interaction, name: str):

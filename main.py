@@ -142,9 +142,10 @@ async def abel(interaction: discord.Interaction, name: str):
 ############################################
 @tree.command(name="close", description="Mark a ticket as resolved")
 @app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
+@app_commands.describe(reason="Reason for closing the ticket (Optional)")
 @app_commands.guild_only()
-async def close(interaction: discord.Interaction, type: Optional[TypeClose]):
-    await actions.close(interaction, type if type else TypeClose.Resolve)
+async def close(interaction: discord.Interaction, type: Optional[TypeClose], reason: Optional[str]):
+    await actions.close(interaction, type if type else TypeClose.Resolve, reason)
 
 
 @client.event
@@ -179,10 +180,10 @@ async def on_thread_member_join(thread_member: discord.ThreadMember):
     await actions.thread_member_join(client, thread_member.thread, member)
 
 
-@close.error
-@add_vocal.error
-@rename.error
-@rename.error
+# @close.error
+# @add_vocal.error
+# @rename.error
+# @rename.error
 async def errors(interaction: discord.Interaction, error: AppCommandError):
     id_err = uuid.uuid4()
     embed = discord.Embed(title="λάθος",
