@@ -2,11 +2,10 @@ import enum
 
 
 class TypeClose(enum.Enum):
-    Other = 0
-    Resolved = 2
+    Resolve = 2
     Duplicate = 3
-    Closed = 6
-    Deleted = 4
+    Delete = 4
+    Other = 0
 
 
 class TypeStatusTicket(enum.Enum):

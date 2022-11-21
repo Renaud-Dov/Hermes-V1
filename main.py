@@ -140,7 +140,7 @@ async def abel(interaction: discord.Interaction, name: str):
 @app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
 @app_commands.guild_only()
 async def close(interaction: discord.Interaction, type: Optional[TypeClose]):
-    await actions.close(interaction, type if type else TypeClose.Resolved)
+    await actions.close(interaction, type if type else TypeClose.Resolve)
 
 
 @client.event
