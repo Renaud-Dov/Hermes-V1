@@ -5,10 +5,10 @@ from discord.app_commands import Choice
 
 from src import Embed, tools
 from src.ConfigFormat import Config
-from src.tools import find_tag
+from src.types import TypeStatusTicket, TypeClose, status_converter
 
 
-async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
+async def close(interaction: discord.Interaction, type: TypeClose):
     channel = interaction.channel
     if not channel or channel.type != discord.ChannelType.public_thread:
         await interaction.response.send_message("This is not a thread!", ephemeral=True)
@@ -26,9 +26,11 @@ async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
     async for message in log_chan.history(limit=100):
         if message.embeds and message.embeds[0].footer.text == f"Thread ID: {thread.id}":
             embed: discord.Embed = message.embeds[0]
-            Embed.editEmbed(embed, interaction.user, "Resolved" if not type else type.value)
+            status = status_converter(type)
+            Embed.editEmbed(embed, interaction.user, status)
             view = discord.ui.View()
             view.add_item(Embed.urlButton(thread.jump_url))
+            view.add_item(Embed.statusButton(status))
             await message.edit(embed=embed, view=view)
             break
 
@@ -77,6 +79,7 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
     embed = Embed.newThreadEmbed(thread)
     view = discord.ui.View()
     view.add_item(Embed.urlButton(thread.jump_url))
+    view.add_item(Embed.statusButton(TypeStatusTicket.Created))
     channel_id = config_forum.webhook_channel
     channel = client.get_channel(channel_id)
     await channel.send(embed=embed, view=view)

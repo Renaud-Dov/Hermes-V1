@@ -8,6 +8,7 @@ from discord.app_commands import Choice
 from src.ConfigFormat import Config, TicketFormat
 from src import Modal, actions
 from src.tools import create_vocal_channel
+from src.types import TypeStatusTicket, TypeClose
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -136,11 +137,10 @@ async def abel(interaction: discord.Interaction, name: str):
 #              FORUM TICKETS               #
 ############################################
 @tree.command(name="close", description="Mark a ticket as resolved")
-@app_commands.choices(type=[Choice(name="Resolved", value="Resolved"), Choice(name="Duplicate", value="Duplicate")])
 @app_commands.describe(type="Mark a ticket as resolved or duplicate (default: Resolved)")
 @app_commands.guild_only()
-async def close(interaction: discord.Interaction, type: Optional[Choice[str]]):
-    await actions.close(interaction, type)
+async def close(interaction: discord.Interaction, type: Optional[TypeClose]):
+    await actions.close(interaction, type if type else TypeClose.Resolved)
 
 
 @client.event

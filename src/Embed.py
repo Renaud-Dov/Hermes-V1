@@ -2,6 +2,7 @@ import discord
 
 from src import tools
 from src.ConfigFormat import Config
+from src.types import TypeStatusTicket
 
 
 def urlButton(url: str):
@@ -79,19 +80,20 @@ def doneEmbed(member: discord.Member, status: str, config: Config):
     return embed
 
 
-def editEmbed(embed: discord.Embed, member: discord.Member, status: str):
-    if status == "Resolved":
-        embed.set_field_at(0, name="Status", value="Done ✅")
-        embed.colour = discord.Colour.light_gray()
-    elif status == "Duplicate":
-        embed.set_field_at(0, name="Status", value="Duplicate 🟡")
-        embed.colour = discord.Colour.gold()
-    elif status == "Closed":
-        embed.set_field_at(0, name="Status", value="Closed 🔴")
-        embed.colour = discord.Colour.red()
-    elif status == "Joined":
-        embed.set_field_at(0, name="Status", value="Joined 🟢")
-        embed.colour = discord.Colour.orange()
+def editEmbed(embed: discord.Embed, member: discord.Member, status: TypeStatusTicket):
+    match status:
+        case TypeStatusTicket.Resolved:
+            embed.set_field_at(0, name="Status", value="Done ✅")
+            embed.colour = discord.Colour.light_gray()
+        case TypeStatusTicket.Duplicate:
+            embed.set_field_at(0, name="Status", value="Duplicate 🟡")
+            embed.colour = discord.Colour.gold()
+        case TypeStatusTicket.Closed:
+            embed.set_field_at(0, name="Status", value="Closed 🔴")
+            embed.colour = discord.Colour.red()
+        case TypeStatusTicket.Joined:
+            embed.set_field_at(0, name="Status", value="Joined 🟢")
+            embed.colour = discord.Colour.orange()
 
     for field in embed.fields:
         if field.name == "Action done by":
@@ -146,3 +148,32 @@ def deletedThreadEmbed(thread: discord.Thread):
     embed.timestamp = discord.utils.utcnow()
     embed.set_footer(text=f"Thread ID: {thread.id}")
     return embed
+
+
+def statusButton(status: TypeStatusTicket):
+    label = ""
+    style = discord.ButtonStyle.grey
+    emoji = ""
+    match status:
+        case TypeStatusTicket.Created:
+            label = "Created"
+            style = discord.ButtonStyle.green
+            emoji = "🆕"
+        case TypeStatusTicket.Joined:
+            label = "Joined"
+            style = discord.ButtonStyle.green
+            emoji = "✅"
+        case TypeStatusTicket.Resolved:
+            label = "Resolved"
+            style = discord.ButtonStyle.grey
+            emoji = "✅"
+        case TypeStatusTicket.Duplicate:
+            label = "Duplicate"
+            style = discord.ButtonStyle.red
+            emoji = "⚠️"
+        case TypeStatusTicket.Closed:
+            label = "Closed"
+            style = discord.ButtonStyle.red
+            emoji = "❌"
+
+    return discord.ui.Button(label=label, style=style, emoji=emoji, disabled=True)
