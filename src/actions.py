@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 import re
 import discord
@@ -87,6 +88,7 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
     await thread.join()
 
     if "Moulinette" in [tag.name for tag in thread.applied_tags]:
+        await asyncio.sleep(0.5)
         await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
                           "login and the tag of your trace below.")
 
