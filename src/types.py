@@ -16,6 +16,7 @@ class TypeStatusTicket(enum.Enum):
     Deleted = 4
     Joined = 5
     Closed = 6
+    Recreated = 7
 
 
 def status_converter(close: TypeClose) -> TypeStatusTicket:

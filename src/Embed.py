@@ -1,6 +1,6 @@
 import discord
 
-from src import tools
+from src import tools, actions
 from src.ConfigFormat import Config
 from src.types import TypeStatusTicket
 
@@ -10,33 +10,13 @@ def urlButton(url: str):
 
 
 class ReopenView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.timeout = 3600
+
     @discord.ui.button(label="Reopen", style=discord.ButtonStyle.green, emoji="🔓")
     async def reopen(self, interaction: discord.Interaction, button: discord.ui.Button):
-        thread = interaction.channel
-        forum = thread.parent
-        config = Config("config/config.yaml")
-        config_forum = config.get_forum(forum.id)
-        if not config_forum:
-            await interaction.response.send_message("Forum not found", ephemeral=True)
-            return
-        if interaction.user.id not in config.settings.managers and interaction.user.id != thread.owner.id:
-            await interaction.response.send_message("You are not allowed to do that", ephemeral=True)
-            return
-        for tag in forum.available_tags:
-            if tag.name == config_forum.end_tag:
-                await thread.remove_tags(tag)
-                break
-
-        await thread.edit(archived=False, locked=False)
-        await interaction.message.delete()
-        await interaction.response.send_message("Reopened", ephemeral=True)
-        log_chan = interaction.client.get_channel(config_forum.webhook_channel)
-
-        await thread.edit(auto_archive_duration=10080)  # 7 days to archive
-        embed = newThreadEmbed(thread)
-        view = discord.ui.View()
-        view.add_item(urlButton(thread.jump_url))
-        await log_chan.send(embed=embed, view=view)
+        await actions.reopen_ticket(interaction)
 
 
 def strTag(tag: discord.ForumTag):
@@ -46,15 +26,17 @@ def strTag(tag: discord.ForumTag):
     return s
 
 
-def newThreadEmbed(thread: discord.Thread, reopened=False):
+def newThreadEmbed(thread: discord.Thread, status: TypeStatusTicket):
     embed = discord.Embed(title=thread.name, color=discord.Color.orange())
     if thread.starter_message:
         embed.description = thread.starter_message.content
     embed.timestamp = thread.created_at
-    if reopened:
+    if status.Created:
         embed.add_field(name="Status", value="Open 🟢")  # must be fist field
-    else:
+    elif status.Resolved:
         embed.add_field(name="Status", value="Reopened 🟢")  # must be fist field
+    else:
+        embed.add_field(name="Status", value="Other (Error)")
     embed.set_author(name=thread.owner.display_name, icon_url=thread.owner.display_avatar)
     if thread.applied_tags:
         embed.add_field(name="Tags", value="\n".join([strTag(tag) for tag in thread.applied_tags]))
@@ -159,6 +141,10 @@ def statusButton(status: TypeStatusTicket):
             label = "Created"
             style = discord.ButtonStyle.green
             emoji = "🆕"
+        case TypeStatusTicket.Recreated:
+            label = "Recreated"
+            style = discord.ButtonStyle.green
+            emoji = "🆕"
         case TypeStatusTicket.Joined:
             label = "Joined"
             style = discord.ButtonStyle.green
@@ -177,3 +163,13 @@ def statusButton(status: TypeStatusTicket):
             emoji = "❌"
 
     return discord.ui.Button(label=label, style=style, emoji=emoji, disabled=True)
+
+
+def reopenEmbed(thread: discord.Thread, manager: discord.Member):
+    embed = discord.Embed(title="Your ticket has been closed", color=discord.Color.blue())
+    embed.description = f"Your ticket {thread.name} has been closed by {manager.mention}. " \
+                        f"If you want to reopen it, please click on the button below."
+    embed.set_author(name=manager.display_name, icon_url=manager.display_avatar)
+    embed.timestamp = discord.utils.utcnow()
+    embed.set_footer(text=f"Thread ID: {thread.parent.id} {thread.id}")
+    return embed

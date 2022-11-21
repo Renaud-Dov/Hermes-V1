@@ -10,18 +10,17 @@ from src.types import TypeStatusTicket, TypeClose, status_converter
 
 
 async def close(interaction: discord.Interaction, type: TypeClose):
-    channel = interaction.channel
-    if not channel or channel.type != discord.ChannelType.public_thread:
-        await interaction.response.send_message("This is not a thread!", ephemeral=True)
+    thread: discord.Thread = interaction.channel
+    if not thread or thread.type != discord.ChannelType.public_thread or thread.locked:
+        await interaction.response.send_message("This is not a opened thread!", ephemeral=True)
         return
 
     config = Config("config/config.yaml")
-    forum = config.get_forum(channel.parent_id)
+    forum = config.get_forum(thread.parent_id)
     if not forum:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
         return
 
-    thread: discord.Thread = channel
     log_chan = interaction.client.get_channel(forum.webhook_channel)
     # find the message in the log channel
     message = await find_ticket_from_logs(log_chan, str(thread.id))
@@ -39,8 +38,9 @@ async def close(interaction: discord.Interaction, type: TypeClose):
         await thread.add_tags(tag)
 
     await interaction.response.send_message("Marked as done", ephemeral=True)
-    await channel.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value, config))
-    await thread.edit(archived=True)  # TODO: lock thread
+    await thread.send(embed=Embed.doneEmbed(interaction.user, "Resolved" if not type else type.value, config))
+    await thread.edit(archived=True, locked=True)
+    await thread.owner.send(embed=Embed.reopenEmbed(thread, interaction.user), view=Embed.ReopenView())
 
 
 async def rename(interaction: discord.Interaction, name: str):
@@ -96,17 +96,51 @@ async def update_thread(client: discord.Client, before: discord.Thread, after: d
     return None
 
 
-async def thread_member_join(client: discord.Client, member: discord.Member):
+async def thread_member_join(client: discord.Client, thread: discord.Thread, member: discord.Member):
     config = Config("config/config.yaml")
-    config_forum = config.get_forum(member.thread.parent_id)
-    if not config_forum or member.thread.archived:
+    config_forum = config.get_forum(thread.parent_id)
+    if not config_forum or thread.archived:
         return
     category = tools.find_manager_category(member, config)
     if not category:
         return
     log_chan = client.get_channel(config_forum.webhook_channel)
-    message = await find_ticket_from_logs(log_chan, str(member.thread.id))
+    message = await find_ticket_from_logs(log_chan, str(thread.id))
     if message:
         embed: discord.Embed = message.embeds[0]
         Embed.editEmbed(embed, member, TypeStatusTicket.Joined)
         await message.edit(embed=embed)
+
+
+async def reopen_ticket(interaction: discord.Interaction):
+    message = interaction.message
+    if not message.embeds:
+        await interaction.response.send_message("You have deleted embed, I can find related data anymore.")
+        return
+    ids = message.embeds[0].footer.text.split(" ")[-2:]
+    id_forum = int(ids[0])
+    channel = interaction.client.get_channel(id_forum)
+    if not channel:
+        await interaction.response.send_message("I can't find the forum channel, please contact an administrator.")
+        return
+    id_thread = int(ids[1])
+    thread = await channel.guild.fetch_channel(id_thread)
+    if not thread:
+        await interaction.response.send_message("I can't find the thread, please contact an administrator.")
+        return
+    config = Config("config/config.yaml")
+    config_forum = config.get_forum(thread.parent_id)
+    if not config_forum:
+        return
+    await thread.edit(archived=False, locked=False, auto_archive_duration=10080)
+    await thread.remove_tags(tools.find_tag(thread.parent, config_forum.end_tag))
+    await message.delete()
+    await thread.send(f"**The thread has been reopened by {interaction.user.mention}.**")
+
+    log_chan = interaction.client.get_channel(config_forum.webhook_channel)
+    embed = Embed.newThreadEmbed(thread, TypeStatusTicket.Recreated)
+    view = discord.ui.View()
+    view.add_item(Embed.urlButton(thread.jump_url))
+    view.add_item(Embed.statusButton(TypeStatusTicket.Recreated))
+    await log_chan.send(embed=embed, view=view)
+    await interaction.user.send("The thread has been reopened.")

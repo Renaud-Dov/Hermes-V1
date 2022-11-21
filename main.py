@@ -174,9 +174,9 @@ async def on_thread_update(before: discord.Thread, after: discord.Thread):
 @client.event
 async def on_thread_member_join(thread_member: discord.ThreadMember):
     member: discord.Member = thread_member.thread.guild.get_member(thread_member.id)
-    logger.debug(f"Thread {member.thread.name} {member.thread.id}"
-                 f" has a new member {member.display_name}({member.user.id})")
-    await actions.thread_member_join(client, member)
+    logger.debug(f"Thread {thread_member.thread.name} {thread_member.thread.id}"
+                 f" has a new member {member.display_name}({member.id})")
+    await actions.thread_member_join(client, thread_member.thread, member)
 
 
 @close.error
@@ -190,7 +190,14 @@ async def errors(interaction: discord.Interaction, error: AppCommandError):
                           color=discord.Color.red())
     embed.add_field(name="ID Error", value=id_err, inline=False)
     embed.set_footer(text="μην τα σπας όλα")
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    try:
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    except discord.errors.NotFound:
+        try:
+            await interaction.user.send(embed=embed)
+        except discord.errors.Forbidden:
+            pass
+
     logger.error(f"[{id_err}] {error}")
 
 
