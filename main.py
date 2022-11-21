@@ -180,10 +180,10 @@ async def on_thread_member_join(thread_member: discord.ThreadMember):
     await actions.thread_member_join(client, thread_member.thread, member)
 
 
-# @close.error
-# @add_vocal.error
-# @rename.error
-# @rename.error
+@close.error
+@add_vocal.error
+@rename.error
+@rename.error
 async def errors(interaction: discord.Interaction, error: AppCommandError):
     id_err = uuid.uuid4()
     embed = discord.Embed(title="λάθος",
