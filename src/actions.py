@@ -82,7 +82,7 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
         return
 
     await thread.edit(auto_archive_duration=10080)  # 7 days to archive
-    embed = Embed.newThreadEmbed(thread)
+    embed = Embed.newThreadEmbed(thread, TypeStatusTicket.Created)
     view = discord.ui.View()
     view.add_item(Embed.urlButton(thread.jump_url))
     view.add_item(Embed.statusButton(TypeStatusTicket.Created))
