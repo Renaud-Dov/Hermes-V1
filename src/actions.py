@@ -41,7 +41,8 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
     if type == TypeClose.Resolve or type == TypeClose.Duplicate:
         await interaction.response.send_message("Marked as done", ephemeral=True)
         await thread.send(embed=response_embed)
-        await thread.owner.send(embed=Embed.reopenEmbed(thread, interaction.user), view=Embed.ReopenView())
+        if type == TypeClose.Resolve:
+            await thread.owner.send(embed=Embed.reopenEmbed(thread, interaction.user), view=Embed.ReopenView())
         await thread.edit(archived=True, locked=True)
     elif type == TypeClose.Delete:
         await thread.owner.send(embed=response_embed)
