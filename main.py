@@ -9,7 +9,7 @@ from discord import app_commands
 from discord.app_commands import AppCommandError
 
 from src.ConfigFormat import Config, TicketFormat
-from src import Modal, actions
+from src import Modal, actions, Embed
 from src.tools import create_vocal_channel
 from src.types import TypeClose
 
@@ -135,6 +135,17 @@ async def abel(interaction: discord.Interaction, name: str):
         return
 
     await interaction.channel.send(name)
+
+
+@tree.command(name="rules", description="Reminders of the rules")
+@app_commands.guild_only()
+async def rules(interaction: discord.Interaction):
+    await interaction.response.send_message("done", ephemeral=True)
+    if interaction.user.id != 208480161421721600:
+        return
+    await interaction.channel.send(embeds=[Embed.rulesEmbedFr(), Embed.rulesEmbedEn()])
+
+
 
 
 ############################################

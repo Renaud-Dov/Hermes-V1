@@ -126,18 +126,35 @@ def rulesTicketEmbed():
     return embed
 
 
-def rulesEmbed():
+def rulesEmbedFr():
     embed = discord.Embed(title="Règles relatives aux tickets", color=discord.Color.yellow())
     embed.description = """Merci de respecter les règles suivantes :
     :one: Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
     :two: Le partage de code est interdit, vos screens ne doivent pas contenir de code.
     :three: Regardez bien si votre question n'a pas déjà été posée avant de la poser, sinon elle sera considérée comme doublon.
-    :four: Ne pas ping les assistants, ils vous répondront dès qu'ils le pourront.
-    :five: Spécifiez bien votre problème, et mettez un titre explicite à votre ticket, au cas où d'autres personnes se poserait la même question.
+    :four: Ne pas ping les assistants, ils vous répondront dès qu'ils le pourront. N'envoyez pas de messages privés aux assistants, à moins qu'ils vous l'aient demandé.
+    :five: Spécifiez bien votre problème, et mettez un titre explicite à votre ticket, au cas où d'autres personnes se poseraient la même question.
     :six: Mettez un ou plusieurs tags à votre ticket, afin de faciliter la recherche de votre question par les assistants et les autres étudiants.
+    :seven: Toute question en rapport aux tests ne sera pas traitée et sera supprimée.
     
     Cordialement,
     L'équipe ACDC."""
+    return embed
+
+
+def rulesEmbedEn():
+    embed = discord.Embed(title="Ticket rules", color=discord.Color.yellow())
+    embed.description = """Please respect the following rules:
+     :one: Everything written in this channel is visible by the assistants, as well as the moderators of the server. If you want your question to be kept private, please do not ask it here.
+     :two: Code sharing is prohibited, your screens must not contain code.
+     :three: Look carefully if your question has not already been asked before asking it, otherwise it will be considered a duplicate.
+     :four: Don't ping the assistants, they'll get back to you as soon as they can. Don't DM them unless they ask you to do so.
+     :five: Specify your problem, and put an explicit title to your ticket, in case other people would ask the same question.
+     :six: Tag your ticket with one or more tag(s) to make it easier for assistants and other students to find your question.
+     :seven: All questions regarding tests won't be answered and will be deleted.
+
+     Cordially,
+     The ACDC team."""
     return embed
 
 
