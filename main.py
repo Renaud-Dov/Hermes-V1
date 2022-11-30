@@ -13,11 +13,7 @@ from src import Modal, actions, Embed
 from src.tools import create_vocal_channel
 from src.types import TypeClose
 
-logger = logging.getLogger('discord')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+import src.logs
 
 intents = discord.Intents.default()
 intents.guilds = True
@@ -26,6 +22,7 @@ intents.members = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
+logger = logging.getLogger('discord')
 
 @client.event
 async def on_ready():
@@ -144,8 +141,6 @@ async def rules(interaction: discord.Interaction):
     if interaction.user.id != 208480161421721600:
         return
     await interaction.channel.send(embeds=[Embed.rulesEmbedFr(), Embed.rulesEmbedEn()])
-
-
 
 
 ############################################

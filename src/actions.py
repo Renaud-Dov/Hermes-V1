@@ -1,9 +1,10 @@
 import asyncio
+import logging
 from typing import Optional
 import re
 import discord
 
-from src import Embed, tools
+from src import Embed, tools, logs
 from src.ConfigFormat import Config
 from src.tools import find_ticket_from_logs
 from src.types import TypeStatusTicket, TypeClose, status_converter
@@ -48,6 +49,7 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
         await thread.owner.send(embed=response_embed)
         await thread.delete()
         await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
+    logs.close_ticket(interaction.user, type, thread.id, reason)
 
 
 async def rename(interaction: discord.Interaction, name: str):
