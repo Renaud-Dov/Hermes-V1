@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID
 
 import discord
 
@@ -12,15 +13,40 @@ logger.addHandler(handler)
 
 
 def format_user(user: discord.User or discord.Member):
-    return f"({user.id},{user.name}#{user.discriminator})"
+    return f""
 
 
 # ACTION="" ... etc
 
-def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: id, reason: str):
+def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reason: str):
     logger.info(
-        f'ACTION=close_ticket manager={format_user(manager)} type={type.name} ticket_id={ticket_id} reason=`{reason}`')
+        f'action=close_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} type={type.name} ticket_id={ticket_id} reason=`{reason}`')
 
 
-def new_ticket(category: str, student: discord.Member):
-    logger.info(f"ACTION=new_ticket category={category} student={format_user(student)}")
+def new_ticket(ticket_id: int, name: str, student: discord.Member):
+    logger.info(
+        f"action=new_ticket name={name} user_id={student.id} user={student.name}#{student.discriminator} ticket_id={ticket_id}")
+
+
+def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: str):
+    logger.info(
+        f"action=renamed_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} old_name=`{old_name}` name=`{name}`")
+
+
+def deleted_ticket(ticket_id: int, name: str, user: discord.Member):
+    logger.info(
+        f"action=deleted_ticket ticket_id={ticket_id} name=`{name}` user_id={user.id} user={user.name}#{user.discriminator}")
+
+
+def joined_ticket(manager: discord.Member, ticket_id: int):
+    logger.info(
+        f"action=joined_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} ticket_id={ticket_id}")
+
+
+def error(user: discord.Member, err: Exception, id_err: UUID):
+    logger.error(f"action=error user_id={user.id} user={user.name}#{user.discriminator} error={err} err_id={id_err}")
+
+
+def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discord.Member):
+    logger.info(
+        f"action=reopen_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} name=`{name}` owner_id={owner.id} owner={owner.name}#{owner.discriminator}")

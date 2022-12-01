@@ -66,6 +66,7 @@ async def rename(interaction: discord.Interaction, name: str):
         name = match.group(1) + " " + name
     await thread.edit(name=name)
     await interaction.response.send_message(f"Renamed from `{old_name}` to `{name}`", ephemeral=True)
+    logs.renamed_ticket(interaction.user, thread.id, old_name, name)
 
 
 async def delete_thread(client: discord.Client, thread: discord.Thread):
@@ -77,6 +78,8 @@ async def delete_thread(client: discord.Client, thread: discord.Thread):
     channel_id = config_forum.webhook_channel
     channel = client.get_channel(channel_id)
     await channel.send(embed=embed)
+
+    logs.deleted_ticket(thread.id, thread.name, thread.owner)
 
 
 async def thread_create(client: discord.Client, thread: discord.Thread):
@@ -99,6 +102,8 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
         await asyncio.sleep(0.5)
         await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
                           "login and the tag of your trace below.")
+
+    logs.new_ticket(thread.id, thread.name, thread.owner)
 
 
 async def update_thread(client: discord.Client, before: discord.Thread, after: discord.Thread):
@@ -153,3 +158,5 @@ async def reopen_ticket(interaction: discord.Interaction):
     view.add_item(Embed.statusButton(TypeStatusTicket.Recreated))
     await log_chan.send(embed=embed, view=view)
     await interaction.user.send("The thread has been reopened.")
+
+    logs.reopen_ticket(interaction.user, thread.id, thread.name, thread.owner)

@@ -9,7 +9,7 @@ from discord import app_commands
 from discord.app_commands import AppCommandError
 
 from src.ConfigFormat import Config, TicketFormat
-from src import Modal, actions, Embed
+from src import Modal, actions, Embed, logs
 from src.tools import create_vocal_channel
 from src.types import TypeClose
 
@@ -174,15 +174,12 @@ async def on_thread_delete(thread: discord.Thread):
 
 @client.event
 async def on_thread_update(before: discord.Thread, after: discord.Thread):
-    logger.debug(f"Thread {before.name} {before.id} has been updated")
     await actions.update_thread(client, before, after)
 
 
 @client.event
 async def on_thread_member_join(thread_member: discord.ThreadMember):
     member: discord.Member = thread_member.thread.guild.get_member(thread_member.id)
-    logger.debug(f"Thread {thread_member.thread.name} {thread_member.thread.id}"
-                 f" has a new member {member.display_name}({member.id})")
     await actions.thread_member_join(client, thread_member.thread, member)
 
 
@@ -205,8 +202,7 @@ async def errors(interaction: discord.Interaction, error: AppCommandError):
         except discord.errors.Forbidden:
             pass
 
-    logger.error(f"[{id_err}] {error}")
-
+    logs.error(interaction.user, error, id_err)
 
 try:
     client.run(os.environ.get("DISCORD_TOKEN"))
