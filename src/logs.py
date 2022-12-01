@@ -12,15 +12,10 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 
-def format_user(user: discord.User or discord.Member):
-    return f""
-
-
-# ACTION="" ... etc
 
 def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reason: str):
     logger.info(
-        f'action=close_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} type={type.name} ticket_id={ticket_id} reason=`{reason}`')
+        f'action=close_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} type={type.name} ticket_id={ticket_id} reason=\"{reason}\"')
 
 
 def new_ticket(ticket_id: int, name: str, student: discord.Member):
@@ -30,12 +25,12 @@ def new_ticket(ticket_id: int, name: str, student: discord.Member):
 
 def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: str):
     logger.info(
-        f"action=renamed_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} old_name=`{old_name}` name=`{name}`")
+        f"action=renamed_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} old_name=\"{old_name}\" name=\"{name}\"")
 
 
 def deleted_ticket(ticket_id: int, name: str, user: discord.Member):
     logger.info(
-        f"action=deleted_ticket ticket_id={ticket_id} name=`{name}` user_id={user.id} user={user.name}#{user.discriminator}")
+        f"action=deleted_ticket ticket_id={ticket_id} name=\"{name}\" user_id={user.id} user={user.name}#{user.discriminator}")
 
 
 def joined_ticket(manager: discord.Member, ticket_id: int):
@@ -49,4 +44,4 @@ def error(user: discord.Member, err: Exception, id_err: UUID):
 
 def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discord.Member):
     logger.info(
-        f"action=reopen_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} name=`{name}` owner_id={owner.id} owner={owner.name}#{owner.discriminator}")
+        f"action=reopen_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} name=\"{name}\" owner_id={owner.id} owner={owner.name}#{owner.discriminator}")
