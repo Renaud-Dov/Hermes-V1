@@ -12,7 +12,6 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 
-
 def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reason: str):
     logger.info(
         f'action=close_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} type={type.name} ticket_id={ticket_id} reason=\"{reason}\"')
@@ -20,7 +19,7 @@ def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reaso
 
 def new_ticket(ticket_id: int, name: str, student: discord.Member):
     logger.info(
-        f"action=new_ticket name={name} user_id={student.id} user={student.name}#{student.discriminator} ticket_id={ticket_id}")
+        f"action=new_ticket name=\"{name}\" user_id={student.id} user={student.name}#{student.discriminator} ticket_id={ticket_id}")
 
 
 def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: str):

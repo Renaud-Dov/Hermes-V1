@@ -107,7 +107,15 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
 
 
 async def update_thread(client: discord.Client, before: discord.Thread, after: discord.Thread):
-    return None
+    config_forum = Config("config/config.yaml").get_forum(after.parent_id)
+    if not config_forum:
+        return
+
+    if "Moulinette" in [tag.name for tag in after.applied_tags] \
+            and not "Moulinette" in [tag.name for tag in before.applied_tags]:
+        await asyncio.sleep(0.5)
+        await after.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
+                         "login and the tag of your trace below.")
 
 
 async def thread_member_join(client: discord.Client, thread: discord.Thread, member: discord.Member):
