@@ -24,6 +24,7 @@ tree = app_commands.CommandTree(client)
 
 logger = logging.getLogger('discord')
 
+
 @client.event
 async def on_ready():
     logger.info(f'{client.user} has connected to Discord!')
@@ -154,6 +155,13 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose], rea
     await actions.close(interaction, type if type else TypeClose.Resolve, reason)
 
 
+@tree.command(name="close_all", description="Mark all tickets with a specific tag as resolved")
+@app_commands.describe(reason="Reason for closing the ticket (Optional)")
+@app_commands.guild_only()
+async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: Optional[str],
+                    reason: Optional[str]):
+    await actions.close_all(interaction, forum, int(tag), reason)
+
 @client.event
 async def on_thread_create(thread: discord.Thread):
     logger.debug(f"Thread{thread.id} has been create")
@@ -203,6 +211,7 @@ async def errors(interaction: discord.Interaction, error: AppCommandError):
             pass
 
     logs.error(interaction.user, error, id_err)
+
 
 try:
     client.run(os.environ.get("DISCORD_TOKEN"))
