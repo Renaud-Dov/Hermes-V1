@@ -160,7 +160,7 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose], rea
 @app_commands.guild_only()
 async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: Optional[str],
                     reason: Optional[str]):
-    await actions.close_all(interaction, forum, int(tag), reason)
+    await actions.close_all(interaction, forum, int(tag or 0), reason)
 
 @client.event
 async def on_thread_create(thread: discord.Thread):

@@ -170,13 +170,13 @@ async def reopen_ticket(interaction: discord.Interaction):
     logs.reopen_ticket(interaction.user, thread.id, thread.name, thread.owner)
 
 
-async def close_all(interaction: discord.Interaction,forum: discord.ForumChannel, tag: Optional[int], reason: Optional[str]):
+async def close_all(interaction: discord.Interaction,forum: discord.ForumChannel, tag: int, reason: Optional[str]):
     config = Config("config/config.yaml")
     forum_config = config.get_forum(forum.id)
     if not forum_config:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
         return
-    if not tag:
+    if tag == 0:
         await interaction.response.send_message("Tags: " + ", ".join([f"`{tag.id} {tag.name}`" for tag in forum.available_tags]), ephemeral=True)
         return
 
