@@ -153,7 +153,7 @@ async def google(interaction: discord.Interaction, query: str, message: Optional
         "long_url": f"https://letmegooglethat.com/?q={query}"
     }))
     if not r.ok:
-        await interaction.response.send_message(f"Error while creating link: {r.text}", ephemeral=True)
+        await interaction.response.send_message(f"Error while creating link: {r.json()}", ephemeral=True)
         return
     r = r.json()
 
