@@ -3,6 +3,7 @@ import os
 import random
 import uuid
 from typing import Optional
+import urllib.parse
 
 import discord
 from discord import app_commands
@@ -135,6 +136,15 @@ async def abel(interaction: discord.Interaction, name: str):
     await interaction.channel.send(name)
 
 
+@tree.command(name="google", description="What do you know about `Let me google that for you`?")
+@app_commands.describe(query="Query to search")
+async def google(interaction: discord.Interaction, query: str):
+    # transform query in url format
+    query = urllib.parse.quote(query)
+    await interaction.response.send_message(f"https://letmegooglethat.com/?q={query}", suppress_embeds=True)
+    # transform every special character by %
+
+
 @tree.command(name="rules", description="Reminders of the rules")
 @app_commands.guild_only()
 async def rules(interaction: discord.Interaction):
@@ -161,6 +171,7 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose], rea
 async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: Optional[str],
                     reason: Optional[str]):
     await actions.close_all(interaction, forum, int(tag or 0), reason)
+
 
 @client.event
 async def on_thread_create(thread: discord.Thread):
