@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import random
@@ -6,6 +7,7 @@ from typing import Optional
 import urllib.parse
 
 import discord
+import requests as requests
 from discord import app_commands
 from discord.app_commands import AppCommandError
 
@@ -24,6 +26,8 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 logger = logging.getLogger('discord')
+BITLY_TOKEN = os.getenv("BITLY_TOKEN")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 
 @client.event
@@ -136,13 +140,30 @@ async def abel(interaction: discord.Interaction, name: str):
     await interaction.channel.send(name)
 
 
+
 @tree.command(name="google", description="What do you know about `Let me google that for you`?")
 @app_commands.describe(query="Query to search")
-async def google(interaction: discord.Interaction, query: str):
+async def google(interaction: discord.Interaction, query: str, message: Optional[str]):
     # transform query in url format
     query = urllib.parse.quote(query)
-    await interaction.response.send_message(f"https://letmegooglethat.com/?q={query}", suppress_embeds=True)
-    # transform every special character by %
+
+    r = requests.post("https://api-ssl.bitly.com/v4/shorten", headers={
+        "Authorization": f"Bearer {BITLY_TOKEN}"
+    }, data=json.dumps({
+        "long_url": f"https://letmegooglethat.com/?q={query}"
+    }))
+    if not r.ok:
+        await interaction.response.send_message("Error while creating link", ephemeral=True)
+        return
+    r = r.json()
+
+    if message is None:
+        message = ""
+    else:
+        message += " "
+    await interaction.response.send_message(message + r["link"], suppress_embeds=True)
+
+    logger.info(f"Google command used by {interaction.user} with query {query} : {r['link']}")
 
 
 @tree.command(name="rules", description="Reminders of the rules")
@@ -225,7 +246,7 @@ async def errors(interaction: discord.Interaction, error: AppCommandError):
 
 
 try:
-    client.run(os.environ.get("DISCORD_TOKEN"))
+    client.run(DISCORD_TOKEN)
 except Exception as e:
     logger.exception(e)
     exit(1)
