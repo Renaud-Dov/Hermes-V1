@@ -136,7 +136,7 @@ def rulesEmbedFr():
     :five: Spécifiez bien votre problème, et mettez un titre explicite à votre ticket, au cas où d'autres personnes se poseraient la même question.
     :six: Mettez un ou plusieurs tags à votre ticket, afin de faciliter la recherche de votre question par les assistants et les autres étudiants.
     :seven: Toute question en rapport aux tests ne sera pas traitée et sera supprimée.
-    
+    :eight: Les tps sont faits pour être réalisés sur le PIE (les machines de l'école). Dans ce sens, tout ticket en rapport avec votre matériel personnel (installation, erreur spécifique windows/mac, etc...) ne sera plus traitée et désormais supprimée.    
     Cordialement,
     L'équipe ACDC."""
     return embed
@@ -152,6 +152,7 @@ def rulesEmbedEn():
      :five: Specify your problem, and put an explicit title to your ticket, in case other people would ask the same question.
      :six: Tag your ticket with one or more tag(s) to make it easier for assistants and other students to find your question.
      :seven: All questions regarding tests won't be answered and will be deleted.
+     :eight: Practicals are made to be done on the PIE (the school's machines). In this sense, any ticket related to your personal equipment (installation, specific windows/mac error, etc...) will no longer be answered and will now be deleted.
 
      Cordially,
      The ACDC team."""
