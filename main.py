@@ -161,7 +161,8 @@ async def google(interaction: discord.Interaction, query: str, message: Optional
         message = ""
     else:
         message += " "
-    await interaction.response.send_message(message + r["link"], suppress_embeds=True)
+    await interaction.response.send_message("Send message")
+    await interaction.channel.send(message + r["link"], suppress_embeds=True)
 
     logger.info(f"Google command used by {interaction.user} with query {query} : {r['link']}")
 
