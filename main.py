@@ -132,12 +132,16 @@ async def intra(interaction: discord.Interaction):
 
 @tree.command(name="abel")
 @app_commands.guild_only()
-async def abel(interaction: discord.Interaction, name: str):
+async def abel(interaction: discord.Interaction, name: str, response: Optional[str] = None):
     await interaction.response.send_message("done", ephemeral=True)
     if interaction.user.id != 208480161421721600:
         return
-
-    await interaction.channel.send(name)
+    if response is None:
+        await interaction.channel.send(name)
+    else:
+        # get message from response
+        message: discord.Message = await interaction.channel.fetch_message(response)
+        await message.reply(name)
 
 
 
