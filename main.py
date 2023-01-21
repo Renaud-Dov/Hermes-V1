@@ -122,7 +122,8 @@ async def rename(interaction: discord.Interaction, name: str):
 
 @tree.command(name="git", description="Link to git survival guide")
 async def git(interaction: discord.Interaction):
-    await interaction.response.send_message("https://moodle.cri.epita.fr/mod/page/view.php?id=18488")
+    await interaction.response.send_message(
+        "https://prepa.pages.epita.fr/programming/students/2027/html/epita-git-tutorial.html")
 
 
 @tree.command(name="intra", description="Link to Forge Intra")
@@ -142,7 +143,6 @@ async def abel(interaction: discord.Interaction, name: str, response: Optional[s
         # get message from response
         message: discord.Message = await interaction.channel.fetch_message(response)
         await message.reply(name)
-
 
 
 @tree.command(name="google", description="What do you know about `Let me google that for you`?")
