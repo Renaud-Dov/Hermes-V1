@@ -39,7 +39,7 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
         await thread.add_tags(tag)
 
     response_embed = Embed.doneEmbed(interaction.user, type, config, reason)
-    if type == TypeClose.Resolve or type == TypeClose.Duplicate:
+    if type == TypeClose.Resolve or type == TypeClose.Duplicate or type == TypeClose.ForceResolve:
         await interaction.response.send_message("Marked as done", ephemeral=True)
         await thread.send(embed=response_embed)
         if type == TypeClose.Resolve:
@@ -47,8 +47,14 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
         await thread.edit(archived=True, locked=True)
     elif type == TypeClose.Delete:
         await thread.owner.send(embed=response_embed)
+        log_msg = await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
+        # create a new thread in response to the log message
+
+        for message in await thread.history(limit=None).flatten():
+            await message.delete()
         await thread.delete()
-        await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
+
+
     logs.close_ticket(interaction.user, type, thread.id, reason)
 
 

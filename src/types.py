@@ -5,6 +5,7 @@ class TypeClose(enum.Enum):
     Resolve = 2
     Duplicate = 3
     Delete = 4
+    ForceResolve = 8
     Other = 0
 
 
@@ -17,6 +18,7 @@ class TypeStatusTicket(enum.Enum):
     Joined = 5
     Closed = 6
     Recreated = 7
+    ForceResolved = 8
 
 
 def status_converter(close: TypeClose) -> TypeStatusTicket:
