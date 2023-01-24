@@ -49,9 +49,22 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
         await thread.owner.send(embed=response_embed)
         log_msg = await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
         # create a new thread in response to the log message
+        log_thread = await log_msg.create_thread(name=thread.name, auto_archive_duration=0)
 
-        for message in await thread.history(limit=None).flatten():
-            await message.delete()
+        content = "```\n"
+        async for message in thread.history(limit=None,oldest_first=True):
+            # if content is too long, make sure to send 2000 characters at a time
+            line= f"{message.author.name}#{message.author.discriminator}: {message.content}\n"
+            content += line + "\n"
+            if len(content) > 2000:
+                # keep max 2000 characters
+                content_left = content[:1900]
+                content_left += "```"
+                await log_thread.send(content_left)
+                content = "```\n" + content[1900:]
+
+        content += "```"
+        await log_thread.send(content)
         await thread.delete()
 
 
