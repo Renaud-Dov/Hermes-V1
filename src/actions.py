@@ -156,7 +156,7 @@ async def thread_member_join(client: discord.Client, thread: discord.Thread, mem
 async def reopen_ticket(interaction: discord.Interaction):
     message = interaction.message
     if not message.embeds:
-        await interaction.response.send_message("You have deleted embed, I can find related data anymore.")
+        await interaction.response.send_message("You have deleted embed, I can't find related data anymore.")
         return
     ids = message.embeds[0].footer.text.split(" ")[-2:]
     id_forum = int(ids[0])
@@ -167,7 +167,7 @@ async def reopen_ticket(interaction: discord.Interaction):
     id_thread = int(ids[1])
     thread = await channel.guild.fetch_channel(id_thread)
     if not thread:
-        await interaction.response.send_message("I can't find the thread, please contact an administrator.")
+        await interaction.response.send_message("I can't find the ticket, please contact an administrator.")
         return
     config = Config("config/config.yaml")
     config_forum = config.get_forum(thread.parent_id)
@@ -176,7 +176,7 @@ async def reopen_ticket(interaction: discord.Interaction):
     await thread.edit(archived=False, locked=False, auto_archive_duration=10080)
     await thread.remove_tags(tools.find_tag(thread.parent, config_forum.end_tag))
     await message.delete()
-    await thread.send(f"**The thread has been reopened by {interaction.user.mention}.**")
+    await thread.send(f"**The Ticket has been reopened by {interaction.user.mention}.**")
 
     log_chan = interaction.client.get_channel(config_forum.webhook_channel)
     embed = Embed.newThreadEmbed(thread, TypeStatusTicket.Recreated)
@@ -184,7 +184,7 @@ async def reopen_ticket(interaction: discord.Interaction):
     view.add_item(Embed.urlButton(thread.jump_url))
     view.add_item(Embed.statusButton(TypeStatusTicket.Recreated))
     await log_chan.send(embed=embed, view=view)
-    await interaction.user.send("The thread has been reopened.")
+    await interaction.user.send("Ticket has been reopened.")
 
     logs.reopen_ticket(interaction.user, thread.id, thread.name, thread.owner)
 
