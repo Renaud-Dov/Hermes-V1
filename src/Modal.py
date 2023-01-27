@@ -7,7 +7,7 @@ from src.Embed import newTicketEmbed, urlButton, rulesTicketEmbed
 from src.tools import create_private_channel
 
 
-class AskQuestion(ui.Modal, title='Votre question'):
+class AskQuestion(ui.Modal, title='Trace ticket'):
     def __init__(self, category_tag: str, config_ticket: TicketFormat):
         super().__init__()
         self.config_ticket = config_ticket
