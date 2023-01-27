@@ -191,6 +191,12 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose], rea
     await actions.close(interaction, type if type else TypeClose.Resolve, reason)
 
 
+@tree.command(name="send_ticket")
+@app_commands.guild_only()
+async def close(interaction: discord.Interaction, login: str, tag: str):
+    await actions.sendTrace(interaction, login, tag)
+
+
 @tree.command(name="close_all", description="Mark all tickets with a specific tag as resolved")
 @app_commands.describe(reason="Reason for closing the ticket (Optional)")
 @app_commands.guild_only()

@@ -6,6 +6,7 @@ import discord
 
 from src import Embed, tools, logs
 from src.ConfigFormat import Config
+from src.Embed import newTicketEmbed
 from src.tools import find_ticket_from_logs
 from src.types import TypeStatusTicket, TypeClose, status_converter
 
@@ -225,3 +226,22 @@ async def close_all(interaction: discord.Interaction,forum: discord.ForumChannel
             await thread.send(embed=response_embed)
             await thread.edit(archived=True, locked=True)
             logs.close_ticket(interaction.user, TypeClose.Resolve, thread.id, reason)
+
+
+def sendTrace(interaction: discord.Interaction, login: str, tag: str):
+    thread: discord.Thread = interaction.channel
+    if not thread or thread.type != discord.ChannelType.public_thread or thread.locked:
+        await interaction.response.send_message("This is not a opened thread!", ephemeral=True)
+        return
+
+    config = Config("config/config.yaml")
+    forum = config.get_forum(thread.parent_id)
+    if not forum:
+        await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
+        return
+
+    log_chan = interaction.client.get_channel(1040188840557682740)
+
+    await log_chan.send(
+        embed=newTicketEmbed(interaction.user, "SEND_TRACE", login, "", tag))
+    await interaction.response.send_message(f"Trace `{login}` `{tag}` sent to the staff team.")
