@@ -191,7 +191,7 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose], rea
     await actions.close(interaction, type if type else TypeClose.Resolve, reason)
 
 
-@tree.command(name="send")
+@tree.command(name="send_ticket")
 @app_commands.guild_only()
 async def close2(interaction: discord.Interaction, login: str, tag: str):
     await actions.sendTrace(interaction, login, tag)

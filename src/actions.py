@@ -230,7 +230,7 @@ async def close_all(interaction: discord.Interaction,forum: discord.ForumChannel
 async def sendTrace(interaction: discord.Interaction, login: str, tag: str):
     log_chan = interaction.client.get_channel(1040188840557682740)
     if not log_chan:
-        await interaction.response.send_message("I can't find the log channel, please contact an administrator.")
+        await interaction.response.send_message("I can't find the log channel, please contact an administrator.", ephemeral=True)
         return
 
     await log_chan.send(f"%{login}%\n{tag}")

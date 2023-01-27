@@ -27,4 +27,4 @@ class AskQuestion(ui.Modal, title='Trace ticket'):
         # view.add_item(urlButton(msg.jump_url))
         await log_chan.send(
             embed=newTicketEmbed(interaction.user, self.category_tag, self.login.value, self.question.value, self.tag.value))
-        await interaction.response.send_message(f"Your trace has been reported to the team.")
+        await interaction.response.send_message(f"Your trace has been reported to the team.", ephemeral=True)
