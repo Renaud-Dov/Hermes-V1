@@ -13,7 +13,7 @@ class AskQuestion(ui.Modal, title='Votre question'):
         self.config_ticket = config_ticket
         self.category_tag = category_tag
 
-    login = ui.TextInput(label='login')
+    login = ui.TextInput(label='login (prenom.nom)')
     tag = ui.TextInput(label='tag')
     question = ui.TextInput(label='Message (optional)', style=discord.TextStyle.paragraph, required=False)
 
