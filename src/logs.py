@@ -29,6 +29,7 @@ def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reaso
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                      ("closed", ticket_id, f"{manager.name}#{manager.discriminator}", reason))
+    conn.commit()
 
 def new_ticket(ticket_id: int, name: str, student: discord.Member):
     logger.info(
