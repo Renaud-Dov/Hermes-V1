@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from typing import Optional
 import re
 import discord
@@ -45,6 +44,7 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
         if type == TypeClose.Resolve:
             await thread.owner.send(embed=Embed.reopenEmbed(thread, interaction.user), view=Embed.ReopenView())
         await thread.edit(archived=True, locked=True)
+        logs.close_ticket(interaction.user, type, thread.id, reason)
     elif type == TypeClose.Delete:
         await thread.owner.send(embed=response_embed)
         log_msg = await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
@@ -66,9 +66,6 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
         content += "```"
         await log_thread.send(content)
         await thread.delete()
-
-
-    logs.close_ticket(interaction.user, type, thread.id, reason)
 
 
 async def rename(interaction: discord.Interaction, name: str):
