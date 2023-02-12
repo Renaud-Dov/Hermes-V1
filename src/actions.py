@@ -5,6 +5,7 @@ import discord
 
 from src import Embed, tools, logs
 from src.ConfigFormat import Config
+from src.db import get_ticket_nb, add_ticket
 from src.tools import find_ticket_from_logs
 from src.types import TypeStatusTicket, TypeClose, status_converter
 
@@ -80,6 +81,8 @@ async def rename(interaction: discord.Interaction, name: str):
     match = re.match(r"(\[\d+\])", old_name)
     if match:
         name = match.group(1) + " " + name
+    else:
+        name = f"[{get_ticket_nb(thread.id)}] {name}"
     await thread.edit(name=name)
     await interaction.response.send_message(f"Renamed from `{old_name}` to `{name}`", ephemeral=True)
     logs.renamed_ticket(interaction.user, thread.id, old_name, name)
@@ -117,7 +120,12 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
     if "Moulinette" in [tag.name for tag in thread.applied_tags]:
         await asyncio.sleep(0.5)
         await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
-                          "login and the tag of your trace below.")
+                          f"login and the tag of your trace below. {thread.owner.mention}")
+
+    add_ticket(thread.id, thread.owner_id)
+    id_ticket = get_ticket_nb(thread.id)
+    await thread.edit(name=f"[{id_ticket}] {thread.name}")
+
 
     logs.new_ticket(thread.id, thread.name, thread.owner)
 
