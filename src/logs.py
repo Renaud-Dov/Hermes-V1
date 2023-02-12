@@ -29,7 +29,7 @@ def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reaso
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                      ("closed", ticket_id, f"{manager.name}#{manager.discriminator}", reason))
-    conn.commit()
+    send_logs()
 
 def new_ticket(ticket_id: int, name: str, student: discord.Member):
     logger.info(
@@ -37,7 +37,7 @@ def new_ticket(ticket_id: int, name: str, student: discord.Member):
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                         ("new", str(ticket_id), f"{student.name}#{student.discriminator}", name))
-    conn.commit()
+    send_logs()
 
 
 def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: str):
@@ -47,7 +47,7 @@ def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: st
     cursor.execute("INSERT INTO Logs (log_type,ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                    ("renamed", str(ticket_id), f"{user.name}#{user.discriminator}",
                     f"Renamed ticket {ticket_id} from \"{old_name}\" to \"{name}\""))
-    conn.commit()
+    send_logs()
 
 
 def deleted_ticket(ticket_id: int, name: str, user: discord.Member):
@@ -56,7 +56,7 @@ def deleted_ticket(ticket_id: int, name: str, user: discord.Member):
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                      ("deleted", str(ticket_id), f"{user.name}#{user.discriminator}", f"Deleted ticket {ticket_id}"))
-    conn.commit()
+    send_logs()
 
 
 def joined_ticket(manager: discord.Member, ticket_id: int):
@@ -65,7 +65,7 @@ def joined_ticket(manager: discord.Member, ticket_id: int):
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                      ("joined", str(ticket_id), f"{manager.name}#{manager.discriminator}", f"Joined ticket {ticket_id}"))
-    conn.commit()
+    send_logs()
 
 
 def error(user: discord.Member, err: Exception, id_err: UUID):
@@ -78,4 +78,11 @@ def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discor
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                         ("reopened", str(ticket_id), f"{user.name}#{user.discriminator}", f"Reopened ticket {ticket_id}"))
-    conn.commit()
+    send_logs()
+
+
+def send_logs():
+    try:
+        conn.commit()
+    except Exception as e:
+        logger.error(f"action=send_logs error={e}")
