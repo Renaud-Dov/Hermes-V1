@@ -13,6 +13,7 @@ from discord.app_commands import AppCommandError
 
 from src.ConfigFormat import Config, TicketFormat
 from src import Modal, actions, Embed, logs
+from src.db import get_id_ticket
 from src.tools import create_vocal_channel
 from src.types import TypeClose
 
@@ -178,6 +179,18 @@ async def rules(interaction: discord.Interaction):
     if interaction.user.id != 208480161421721600:
         return
     await interaction.channel.send(embeds=[Embed.rulesEmbedFr(), Embed.rulesEmbedEn()])
+
+
+@tree.command(name="link", description="Link to another ticket")
+@app_commands.describe(id="ID of the ticket")
+async def link(interaction: discord.Interaction, id: int):
+    ticket_id = get_id_ticket(id)
+    if ticket_id == -1:
+        await interaction.response.send_message("Invalid ID", ephemeral=True)
+        return
+    await interaction.response.send_message(f"https://discord.com/channels/{interaction.guild.id}/{ticket_id}")
+
+
 
 
 ############################################
