@@ -53,9 +53,9 @@ async def close(interaction: discord.Interaction, type: TypeClose, reason: str =
         log_thread = await log_msg.create_thread(name=thread.name, auto_archive_duration=0)
 
         content = "```\n"
-        async for message in thread.history(limit=None,oldest_first=True):
+        async for message in thread.history(limit=None, oldest_first=True):
             # if content is too long, make sure to send 2000 characters at a time
-            line= f"{message.author.name}#{message.author.discriminator}: {message.content}\n"
+            line = f"{message.author.name}#{message.author.discriminator}: {message.content}\n"
             content += line + "\n"
             if len(content) > 2000:
                 # keep max 2000 characters
@@ -102,7 +102,8 @@ async def delete_thread(client: discord.Client, thread: discord.Thread):
 
 
 async def thread_create(client: discord.Client, thread: discord.Thread):
-    config_forum = Config("config/config.yaml").get_forum(thread.parent_id)
+    config = Config("config/config.yaml")
+    config_forum = config.get_forum(thread.parent_id)
     if not config_forum:
         return
 
@@ -117,6 +118,11 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
 
     await thread.join()
 
+    tag_id = config.get_week_practical_tag(thread)
+    if tag_id:
+        await thread.add_tags(thread.parent.get_tag(tag_id))
+        await thread.send(f"Auto added tag {thread.parent.get_tag(tag_id).name}")
+
     if "Moulinette" in [tag.name for tag in thread.applied_tags]:
         await asyncio.sleep(0.5)
         await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
@@ -125,7 +131,6 @@ async def thread_create(client: discord.Client, thread: discord.Thread):
     add_ticket(thread.id, thread.owner_id)
     id_ticket = get_ticket_nb(thread.id)
     await thread.edit(name=f"[{id_ticket}] {thread.name}")
-
 
     logs.new_ticket(thread.id, thread.name, thread.owner)
 
@@ -194,14 +199,15 @@ async def reopen_ticket(interaction: discord.Interaction):
     logs.reopen_ticket(interaction.user, thread.id, thread.name, thread.owner)
 
 
-async def close_all(interaction: discord.Interaction,forum: discord.ForumChannel, tag: int, reason: Optional[str]):
+async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: int, reason: Optional[str]):
     config = Config("config/config.yaml")
     forum_config = config.get_forum(forum.id)
     if not forum_config:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
         return
     if tag == 0:
-        await interaction.response.send_message("Tags: " + ", ".join([f"`{tag.id} {tag.name}`" for tag in forum.available_tags]), ephemeral=True)
+        await interaction.response.send_message(
+            "Tags: " + ", ".join([f"`{tag.id} {tag.name}`" for tag in forum.available_tags]), ephemeral=True)
         return
 
     tag = forum.get_tag(tag)
@@ -235,7 +241,8 @@ async def close_all(interaction: discord.Interaction,forum: discord.ForumChannel
 async def sendTrace(interaction: discord.Interaction, login: str, tag: str):
     log_chan = interaction.client.get_channel(1040188840557682740)
     if not log_chan:
-        await interaction.response.send_message("I can't find the log channel, please contact an administrator.", ephemeral=True)
+        await interaction.response.send_message("I can't find the log channel, please contact an administrator.",
+                                                ephemeral=True)
         return
 
     await log_chan.send(f"%{login}%\n{tag}")

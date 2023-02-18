@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import List, Optional, Dict
 
+import discord
 import yaml
 import re
 
@@ -19,11 +21,18 @@ class SettingsFormat:
         self.managers = [ManagerFormat(m) for m in managers]
 
 
+class PracticalsTagFormat:
+    def __init__(self, tag: dict):
+        self.id = tag["id"]
+        self.from_date = datetime.strptime(tag["from"], "%Y-%m-%d %H:%M:%S")
+        self.to_date = datetime.strptime(tag["to"], "%Y-%m-%d %H:%M:%S")
+
 class ForumFormat:
     def __init__(self, forum: dict):
         self.id = forum["id"]
         self.end_tag = forum["end_tag"]
         self.webhook_channel = forum["webhook_channel"]
+        self.practicals_tags = [PracticalsTagFormat(tag) for tag in forum["practicals_tags"]]
 
 
 class TicketFormat:
@@ -43,6 +52,7 @@ class Config:
         self.forums = [ForumFormat(list(forum.values())[0]) for forum in self._config['forums']]
         self.tickets = {key: TicketFormat(value) for key, value in self._config['tickets'].items()}
         self.groups: Dict[str, int] = self._config['groups']
+        self.tags : List[int] = self._config['tags']
 
     def get_forum(self, forum_id):
         for forum in self.forums:
@@ -70,3 +80,24 @@ class Config:
         """Checks if the user has a role that is in the ticket groups"""
         tickets_groups = self.get_tickets_groupsIDS(ticket)
         return any(role in tickets_groups for role in roles)
+
+
+    def get_week_practical_tag(self, thread: discord.Thread):
+        """Returns the tag of the week of the date"""
+        now = datetime.now()
+        a = thread.applied_tags
+        b = [tag.id for tag in a if tag.id in self.tags]
+        # if the thread has a tag that is in the config tags, skip it
+        for tag_id in b:
+            if tag_id in self.tags:
+                return None
+        forum = self.get_forum(thread.parent_id)
+        if forum:
+            for tag in forum.practicals_tags:
+                if tag.from_date <= now <= tag.to_date:
+                    return tag.id
+        return None
+
+
+
+
