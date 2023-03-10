@@ -70,3 +70,12 @@ def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discor
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
                         ("reopened", str(ticket_id), f"{user.name}#{user.discriminator}", f"Reopened ticket {ticket_id}"))
     execute_sql()
+
+
+def trace_ticket(user: discord.Member, channel_id: int, login: str, tag: str):
+    logger.info(
+        f"action=trace_ticket user_id={user.id} user={user.name}#{user.discriminator} channel_id={channel_id} login=\"{login}\" tag=\"{tag}\"")
+
+    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
+                        ("trace", str(channel_id), f"{user.name}#{user.discriminator}", f"Tag [{tag}] Login [{login}]"))
+    execute_sql()

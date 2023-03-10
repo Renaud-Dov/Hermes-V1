@@ -47,10 +47,10 @@ async def updateCommands(interaction: discord.Interaction):
     await interaction.response.send_message("Updated commands")
 
 
-@tree.command(name="ticket", description="Open a ticket")
+@tree.command(name="trace", description="Create a trace ticket")
 @app_commands.describe(category="Category tag assistants told you to use")
 @app_commands.guild_only()
-async def open_new_ticket(interaction: discord.Interaction, category: str):
+async def trace_ticket(interaction: discord.Interaction, category: str):
     config = Config("config/config.yaml")
 
     tags_list = config.get_open_tag_tickets()
