@@ -21,7 +21,7 @@ class AskQuestion(ui.Modal, title='Trace ticket'):
     async def on_submit(self, interaction: discord.Interaction):
         cat_channel = interaction.client.get_channel(self.config_ticket.category_channel)
         channel: discord.TextChannel = await create_private_channel(cat_channel, interaction.user,
-                                                                    f"trace-{self.login.value}")
+                                                                    f"trace-{self.login.value}".replace(".","_"))
         await channel.send(embed=rulesTicketEmbed())
         msg = await channel.send(f"{interaction.user.mention} {self.login.value}")
         await channel.send(self.question.value)
@@ -29,6 +29,6 @@ class AskQuestion(ui.Modal, title='Trace ticket'):
         view = discord.ui.View()
         view.add_item(urlButton(msg.jump_url))
         chan_logs = interaction.client.get_channel(self.config_ticket.webhook_channel)
-        await chan_logs.send(embed=newTicketEmbed(interaction.user,  self.category_tag, self.login.value, self.question.value), view=view)
+        await chan_logs.send(embed=newTicketEmbed(interaction.user,  self.category_tag, self.login.value, self.question.value, channel), view=view)
         trace_ticket(interaction.user, channel.id,self.login.value, self.category_tag)
         await interaction.response.send_message(f"Created channel {channel.mention}", ephemeral=True)

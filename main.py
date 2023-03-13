@@ -62,6 +62,20 @@ async def trace_ticket(interaction: discord.Interaction, category: str):
     await interaction.response.send_modal(Modal.AskQuestion(category, config_ticket))
 
 
+@tree.command(name="close_trace", description="Close a trace ticket")
+@app_commands.guild_only()
+async def close_trace_ticket(interaction: discord.Interaction):
+    channel = interaction.channel
+    config = Config("config/config.yaml")
+    tags_list = config.get_open_tag_tickets()
+    for tag in tags_list:
+        config_ticket: TicketFormat = config.tickets[tag]
+        if config_ticket.category_channel == channel.category_id:
+            await actions.close_trace_ticket(interaction, config_ticket)
+            return
+    await interaction.response.send_message("This channel is not linked to a ticket!", ephemeral=True)
+
+
 @tree.command(name="add_vocal", description="Add a vocal channel to a ticket")
 @app_commands.describe(student="Student to add to vocal channel")
 @app_commands.guild_only()
@@ -251,6 +265,11 @@ async def on_thread_member_join(thread_member: discord.ThreadMember):
 @add_vocal.error
 @rename.error
 @rename.error
+@trace_ticket.error
+@close_all.error
+@link.error
+@close_trace_ticket.error
+
 async def errors(interaction: discord.Interaction, error: AppCommandError):
     id_err = uuid.uuid4()
     embed = discord.Embed(title="λάθος",
