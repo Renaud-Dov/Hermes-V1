@@ -81,12 +81,11 @@ def trace_ticket(user: discord.Member, channel_id: int, login: str, tag: str):
     execute_sql()
 
 
-def closed_trace_ticket(user: discord.Member, channel_id: int, login: str, tag: str):
+def closed_trace_ticket(user: discord.Member, channel_id: int, tag: str):
     logger.info(
-        f"action=closed_trace_ticket user_id={user.id} user={user.name}#{user.discriminator} channel_id={channel_id} login=\"{login}\" tag=\"{tag}\"")
+        f"action=closed_trace_ticket user_id={user.id} user={user.name}#{user.discriminator} channel_id={channel_id} tag=\"{tag}\"")
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("closed_trace", str(channel_id), f"{user.name}#{user.discriminator}",
-                    f"Tag [{tag}] Login [{login}]"))
+                   ("closed_trace", str(channel_id), f"{user.name}#{user.discriminator}", f"Tag [{tag}]"))
     execute_sql()
 

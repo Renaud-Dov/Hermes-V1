@@ -278,3 +278,4 @@ async def close_trace_ticket(interaction: discord.Interaction, config_ticket: Ti
         if content != "```\n```":  # if there is no content, don't send anything, it's useless
             await log_thread.send(content)
     await thread.delete()
+    logs.closed_trace_ticket(interaction.user, thread.id, config_ticket.open_tag)
