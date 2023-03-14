@@ -24,7 +24,8 @@ class AskQuestion(ui.Modal, title='Trace ticket'):
                                                                     f"trace-{self.login.value}".replace(".","_"))
         await channel.send(embed=rulesTicketEmbed())
         msg = await channel.send(f"{interaction.user.mention} {self.login.value}")
-        await channel.send(self.question.value)
+        if self.question.value:
+            await channel.send(self.question.value)
 
         view = discord.ui.View()
         view.add_item(urlButton(msg.jump_url))
