@@ -1,7 +1,7 @@
 import discord
 
 from src import tools, actions
-from src.ConfigFormat import Config
+from src.config import Config
 from src.types import TypeStatusTicket, TypeClose
 
 

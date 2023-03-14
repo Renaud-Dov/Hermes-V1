@@ -1,3 +1,7 @@
+#  Copyright (c) 2023.
+#  Author: Dov Devers (https://bugbear.fr)
+#  All right reserved
+
 import json
 import logging
 import os
@@ -11,7 +15,7 @@ import requests as requests
 from discord import app_commands
 from discord.app_commands import AppCommandError
 
-from src.ConfigFormat import Config, TicketFormat
+from src.config import Config, TicketFormat
 from src import Modal, actions, Embed, logs
 from src.db import get_id_ticket
 from src.tools import create_vocal_channel

@@ -2,7 +2,7 @@ import discord
 from discord import ui
 import random
 
-from src.ConfigFormat import TicketFormat
+from src.config import TicketFormat
 from src.Embed import newTicketEmbed, urlButton, rulesTicketEmbed
 from src.logs import trace_ticket
 from src.tools import create_private_channel

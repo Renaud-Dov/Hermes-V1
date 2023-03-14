@@ -1,3 +1,7 @@
+#  Copyright (c) 2023.
+#  Author: Dov Devers (https://bugbear.fr)
+#  All right reserved
+
 from datetime import datetime
 from typing import List, Optional, Dict
 
@@ -55,20 +59,14 @@ class Config:
         self.tags : List[int] = self._config['tags']
 
     def get_forum(self, forum_id):
-        for forum in self.forums:
-            if forum.id == forum_id:
-                return forum
-        return None
+        return next((forum for forum in self.forums if forum.id == forum_id), None)
 
     def get_open_tag_tickets(self):
         """Returns a list of open tickets categories"""
-        open_tickets = []
-        for ticket in self.tickets:
-            if self.tickets[ticket].open_tag:
-                open_tickets.append(ticket)
-        return open_tickets
+        return [ticket for ticket in self.tickets if self.tickets[ticket].open_tag]
 
-    def get_tickets_groupsIDS(self, ticket: TicketFormat) -> List[int]:
+
+    def __get_tickets_groupsIDS(self, ticket: TicketFormat) -> List[int]:
         """Returns a list of group ids for a ticket"""
         return [self.groups[group] for group in ticket.groups]
 
@@ -78,7 +76,7 @@ class Config:
 
     def got_ticket_group(self, ticket: TicketFormat, roles: List[int]):
         """Checks if the user has a role that is in the ticket groups"""
-        tickets_groups = self.get_tickets_groupsIDS(ticket)
+        tickets_groups = self.__get_tickets_groupsIDS(ticket)
         return any(role in tickets_groups for role in roles)
 
 

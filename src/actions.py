@@ -1,10 +1,14 @@
+#  Copyright (c) 2023.
+#  Author: Dov Devers (https://bugbear.fr)
+#  All right reserved
+
 import asyncio
 from typing import Optional
 import re
 import discord
 
 from src import Embed, tools, logs
-from src.ConfigFormat import Config, TicketFormat
+from src.config import Config, TicketFormat
 from src.db import get_ticket_nb, add_ticket
 from src.tools import find_ticket_from_logs
 from src.types import TypeStatusTicket, TypeClose, status_converter

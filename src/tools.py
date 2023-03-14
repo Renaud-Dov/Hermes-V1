@@ -1,8 +1,12 @@
+#  Copyright (c) 2023.
+#  Author: Dov Devers (https://bugbear.fr)
+#  All right reserved
+
 from typing import Optional
 
 import discord
 
-from src.ConfigFormat import Config, ManagerFormat
+from src.config import Config, ManagerFormat
 
 
 async def create_private_channel(category: discord.CategoryChannel, student: discord.Member, name: str):
@@ -38,6 +42,7 @@ def find_tag(forum: discord.ForumChannel, tag_name: str):
         if tag.name == tag_name:
             return tag
     return None
+
 
 
 async def find_ticket_from_logs(log_chan: discord.TextChannel, thread_id: str):
