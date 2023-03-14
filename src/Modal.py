@@ -1,15 +1,23 @@
+#  Copyright (c) 2023.
+#  Author: Dov Devers (https://bugbear.fr)
+#  All right reserved
+
 import discord
 from discord import ui
-import random
 
+from src.Embed import newTraceEmbed, urlButton, rulesTicketEmbed
 from src.config import TicketFormat
-from src.Embed import newTicketEmbed, urlButton, rulesTicketEmbed
 from src.logs import trace_ticket
 from src.tools import create_private_channel
 
 
 class AskQuestion(ui.Modal, title='Trace ticket'):
     def __init__(self, category_tag: str, config_ticket: TicketFormat):
+        """
+        Init the modal
+        @param category_tag: Ticket category tag
+        @param config_ticket: Ticket config
+        """
         super().__init__()
         self.config_ticket = config_ticket
         self.category_tag = category_tag
@@ -30,6 +38,8 @@ class AskQuestion(ui.Modal, title='Trace ticket'):
         view = discord.ui.View()
         view.add_item(urlButton(msg.jump_url))
         chan_logs = interaction.client.get_channel(self.config_ticket.webhook_channel)
-        await chan_logs.send(embed=newTicketEmbed(interaction.user,  self.category_tag, self.login.value, self.question.value, channel), view=view)
-        trace_ticket(interaction.user, channel.id,self.login.value, self.category_tag)
+        await chan_logs.send(
+            embed=newTraceEmbed(interaction.user, self.category_tag, self.login.value, self.question.value, channel),
+            view=view)
+        trace_ticket(interaction.user, channel.id, self.login.value, self.category_tag)
         await interaction.response.send_message(f"Created channel {channel.mention}", ephemeral=True)

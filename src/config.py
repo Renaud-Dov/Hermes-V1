@@ -7,7 +7,6 @@ from typing import List, Optional, Dict
 
 import discord
 import yaml
-import re
 
 
 class ManagerFormat:
@@ -79,23 +78,30 @@ class Config:
         tickets_groups = self.__get_tickets_groupsIDS(ticket)
         return any(role in tickets_groups for role in roles)
 
-
     def get_week_practical_tag(self, thread: discord.Thread):
-        """Returns the tag of the week of the date"""
-        now = datetime.now()
-        a = thread.applied_tags
-        b = [tag.id for tag in a if tag.id in self.tags]
-        # if the thread has a tag that is in the config tags, skip it
-        for tag_id in b:
-            if tag_id in self.tags:
-                return None
+        """
+        Returns the tag id of the week practicals
+        @param thread: Thread to check
+        @return: Tag id or None
+        """
+        tags: list[int] = [tag.id for tag in thread.applied_tags if tag.id in self.tags]
+        if tags:
+            return None
         forum = self.get_forum(thread.parent_id)
-        if forum:
-            for tag in forum.practicals_tags:
-                if tag.from_date <= now <= tag.to_date:
-                    return tag.id
+        now = datetime.now()
+        return next((tag.id for tag in forum.practicals_tags if tag.from_date <= now <= tag.to_date), None)
+
+    def find_manager_category(self, member: discord.Member) -> Optional[ManagerFormat]:
+        """
+        Finds the manager category of a member
+        @param member: Discord member
+        @return: Manager category or None
+        """
+        managers = self.settings.managers
+        for managers_category in managers:
+            if member.id in managers_category.users:  # type: int
+                return managers_category
+            for role in member.roles:  # type: discord.Role
+                if role.id in managers_category.roles:  # type: int
+                    return managers_category
         return None
-
-
-
-

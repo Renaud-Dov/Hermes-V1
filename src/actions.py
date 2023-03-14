@@ -3,8 +3,9 @@
 #  All right reserved
 
 import asyncio
-from typing import Optional
 import re
+from typing import Optional
+
 import discord
 
 from src import Embed, tools, logs
@@ -156,7 +157,7 @@ async def thread_member_join(client: discord.Client, thread: discord.Thread, mem
     config_forum = config.get_forum(thread.parent_id)
     if not config_forum or thread.archived:
         return
-    category = tools.find_manager_category(member, config)
+    category = config.find_manager_category(member)
     if not category:
         return
     log_chan = client.get_channel(config_forum.webhook_channel)

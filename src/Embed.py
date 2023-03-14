@@ -1,3 +1,7 @@
+#  Copyright (c) 2023.
+#  Author: Dov Devers (https://bugbear.fr)
+#  All right reserved
+
 import discord
 
 from src import tools, actions
@@ -5,12 +9,20 @@ from src.config import Config
 from src.types import TypeStatusTicket, TypeClose
 
 
-def urlButton(url: str):
+def urlButton(url: str) -> discord.ui.Button:
+    """
+    Create a button with a link
+    @param url: Url of the link
+    @return: Button
+    """
     return discord.ui.Button(label="Link", style=discord.ButtonStyle.link, url=url)
 
 
 class ReopenView(discord.ui.View):
     def __init__(self):
+        """
+        Init the view
+        """
         super().__init__()
         self.timeout = None  # remove timeout
 
@@ -19,14 +31,13 @@ class ReopenView(discord.ui.View):
         await actions.reopen_ticket(interaction)
 
 
-def strTag(tag: discord.ForumTag):
-    s = f"**{tag.name}**"
-    if tag.emoji:
-        s += f" {tag.emoji}"
-    return s
-
-
 def newThreadEmbed(thread: discord.Thread, status: TypeStatusTicket):
+    """
+    Embed when a new thread is created
+    @param thread: Thread
+    @param status: Status of the thread
+    @return: Embed
+    """
     embed = discord.Embed(title=thread.name, color=discord.Color.orange())
     if thread.starter_message:
         embed.description = thread.starter_message.content
@@ -39,13 +50,22 @@ def newThreadEmbed(thread: discord.Thread, status: TypeStatusTicket):
         embed.add_field(name="Status", value="Other (Error)")
     embed.set_author(name=thread.owner.display_name, icon_url=thread.owner.display_avatar)
     if thread.applied_tags:
-        embed.add_field(name="Tags", value="\n".join([strTag(tag) for tag in thread.applied_tags]))
+        embed.add_field(name="Tags", value="\n".join(
+            [f"**{tag.name}**" + f" {tag.emoji}" if tag.emoji else "" for tag in thread.applied_tags]))
 
     embed.set_footer(text=f"Thread ID: {thread.id}")
     return embed
 
 
 def doneEmbed(member: discord.Member, status: TypeClose, config: Config, reason: str = None):
+    """
+    Embed when a ticket is closed
+    @param member: Member who closed the ticket
+    @param status: Status of the ticket
+    @param config: Config of the bot
+    @param reason: Reason of the close
+    @return: Embed
+    """
     embed = discord.Embed(title="Ticket has been closed by an assistant.", description=reason,
                           color=discord.Color.blue())
     category = tools.find_manager_category(member, config)
@@ -68,6 +88,13 @@ def doneEmbed(member: discord.Member, status: TypeClose, config: Config, reason:
 
 
 def editEmbed(embed: discord.Embed, member: discord.Member, status: TypeStatusTicket):
+    """
+    Edit embed to add status and member who did the action
+    @param embed: Embed to edit
+    @param member: Member who did the action
+    @param status: Status of the ticket
+    @return: None
+    """
     match status:
         case TypeStatusTicket.Resolved:
             embed.set_field_at(0, name="Status", value="Done ✅")
@@ -103,7 +130,16 @@ def editEmbed(embed: discord.Embed, member: discord.Member, status: TypeStatusTi
     embed.timestamp = discord.utils.utcnow()
 
 
-def newTicketEmbed(student: discord.Member, category_tag: str, login: str, question: str, channel: discord.TextChannel):
+def newTraceEmbed(student: discord.Member, category_tag: str, login: str, question: str, channel: discord.TextChannel):
+    """
+    Create embed for new trace ticket
+    @param student: Student who created the ticket
+    @param category_tag: Category tag
+    @param login: Login of the student
+    @param question: Question of the student
+    @param channel: Channel of the ticket
+    @return: Embed
+    """
     embed = discord.Embed(title="New ticket created", color=discord.Color.orange())
     embed.description = question
     embed.set_author(name=student.display_name, icon_url=student.display_avatar)
@@ -115,6 +151,10 @@ def newTicketEmbed(student: discord.Member, category_tag: str, login: str, quest
 
 
 def rulesTicketEmbed():
+    """
+    Create embed for rules of ticket
+    @return: Embed
+    """
     embed = discord.Embed(title="Règles relatives aux tickets privés", color=discord.Color.green())
     embed.description = """Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les 
     modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
@@ -127,6 +167,10 @@ def rulesTicketEmbed():
 
 
 def rulesEmbedFr():
+    """
+    Create embed for rules of ticket
+    @return: Embed
+    """
     embed = discord.Embed(title="Règles relatives aux tickets", color=discord.Color.yellow())
     embed.description = """Merci de respecter les règles suivantes :
     :one: Tout ce qui est écrit dans ce channel est visible par les assistants, ainsi que les modérateurs du serveur. Si vous souhaitez que votre question reste privée, merci de ne pas la poser ici.
@@ -143,6 +187,10 @@ def rulesEmbedFr():
 
 
 def rulesEmbedEn():
+    """
+    Create embed for rules of ticket
+    @return: Embed
+    """
     embed = discord.Embed(title="Ticket rules", color=discord.Color.yellow())
     embed.description = """Please respect the following rules:
      :one: Everything written in this channel is visible by the assistants, as well as the moderators of the server. If you want your question to be kept private, please do not ask it here.
@@ -160,6 +208,13 @@ def rulesEmbedEn():
 
 
 def deletedThreadEmbed(thread: discord.Thread, member: discord.Member = None, reason: str = None):
+    """
+    Create embed for deleted thread
+    @param thread: Thread
+    @param member: Member who deleted the thread
+    @param reason: Reason of the deletion
+    @return: Embed
+    """
     embed = discord.Embed(title="Ticket has been deleted", color=discord.Color.red())
     embed.description = reason
     if member:
@@ -172,6 +227,10 @@ def deletedThreadEmbed(thread: discord.Thread, member: discord.Member = None, re
 
 
 def statusButton(status: TypeStatusTicket):
+    """ Create button for status
+    @param status: Status of the ticket
+    @return: Button
+    """
     label = ""
     style = discord.ButtonStyle.grey
     emoji = None
@@ -205,6 +264,12 @@ def statusButton(status: TypeStatusTicket):
 
 
 def reopenEmbed(thread: discord.Thread, manager: discord.Member):
+    """
+    Create embed for reopen thread
+    @param thread: Thread
+    @param manager: Member who reopen the thread
+    @return: Embed
+    """
     embed = discord.Embed(title="Your ticket has been closed", color=discord.Color.blue())
     embed.description = f"Your ticket {thread.name} has been closed by {manager.mention}. " \
                         f"If you want to reopen it, please click on the button below."

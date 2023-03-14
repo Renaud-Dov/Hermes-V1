@@ -26,4 +26,9 @@ class TypeStatusTicket(enum.Enum):
 
 
 def status_converter(close: TypeClose) -> TypeStatusTicket:
+    """
+    Converts a TypeClose to a TypeStatusTicket
+    @param close: TypeClose to convert
+    @return: TypeStatusTicket converted
+    """
     return TypeStatusTicket(close.value)

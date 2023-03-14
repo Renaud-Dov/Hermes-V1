@@ -5,23 +5,20 @@
 import json
 import logging
 import os
-import random
+import urllib.parse
 import uuid
 from typing import Optional
-import urllib.parse
 
 import discord
 import requests as requests
 from discord import app_commands
 from discord.app_commands import AppCommandError
 
-from src.config import Config, TicketFormat
 from src import Modal, actions, Embed, logs
+from src.config import Config, TicketFormat
 from src.db import get_id_ticket
 from src.tools import create_vocal_channel
 from src.types import TypeClose
-
-import src.logs
 
 intents = discord.Intents.default()
 intents.guilds = True
@@ -246,13 +243,6 @@ async def on_thread_create(thread: discord.Thread):
 async def on_thread_delete(thread: discord.Thread):
     logger.debug(f"Thread {thread.name} {thread.id} has been deleted")
     await actions.delete_thread(client, thread)
-
-
-# @client.event
-# async def on_thread_remove(thread: discord.Thread):
-#     logger.info(f"Thread {thread.name} {thread.id} has been removed")
-#     await actions.delete_thread(client, thread)
-
 
 @client.event
 async def on_thread_update(before: discord.Thread, after: discord.Thread):
