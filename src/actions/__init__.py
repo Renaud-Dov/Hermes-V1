@@ -3,12 +3,15 @@
 #  All right reserved
 
 import asyncio
-import re
 from typing import Optional
 
 import discord
+from discord import app_commands
 
+import src.actions.links
 from src import Embed, tools, logs
+from src.actions import tickets
+from src.client import tree
 from src.config import Config, TicketFormat
 from src.db import get_ticket_nb, add_ticket
 from src.tools import find_ticket_from_logs
@@ -16,81 +19,25 @@ from src.types import TypeStatusTicket, TypeClose, status_converter
 
 
 async def close(interaction: discord.Interaction, type: TypeClose, reason: str = None):
-    thread: discord.Thread = interaction.channel
-    if not thread or thread.type != discord.ChannelType.public_thread or thread.locked:
-        await interaction.response.send_message("This is not a opened thread!", ephemeral=True)
-        return
-
-    config = Config("config/config.yaml")
-    forum = config.get_forum(thread.parent_id)
-    if not forum:
-        await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
-        return
-
-    log_chan = interaction.client.get_channel(forum.webhook_channel)
-    # find the message in the log channel
-    message = await find_ticket_from_logs(log_chan, str(thread.id))
-    if message:
-        embed: discord.Embed = message.embeds[0]
-        status = status_converter(type)
-        Embed.editEmbed(embed, interaction.user, status)
-        view = discord.ui.View()
-        view.add_item(Embed.urlButton(thread.jump_url))
-        view.add_item(Embed.statusButton(status))
-        await message.edit(embed=embed)
-
-    tag = tools.find_tag(thread.parent, forum.end_tag)
-    if tag:
-        await thread.add_tags(tag)
-
-    response_embed = Embed.doneEmbed(interaction.user, type, config, reason)
-    if type == TypeClose.Resolve or type == TypeClose.Duplicate or type == TypeClose.ForceResolve:
-        await interaction.response.send_message("Marked as done", ephemeral=True)
-        await thread.send(embed=response_embed)
-        if type == TypeClose.Resolve:
-            await thread.owner.send(embed=Embed.reopenEmbed(thread, interaction.user), view=Embed.ReopenView())
-        await thread.edit(archived=True, locked=True)
-        logs.close_ticket(interaction.user, type, thread.id, reason)
-    elif type == TypeClose.Delete:
-        await thread.owner.send(embed=response_embed)
-        log_msg = await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
-        # create a new thread in response to the log message
-        log_thread = await log_msg.create_thread(name=thread.name, auto_archive_duration=0)
-
-        content = "```\n"
-        async for message in thread.history(limit=None, oldest_first=True):
-            # if content is too long, make sure to send 2000 characters at a time
-            line = f"{message.author.name}#{message.author.discriminator}: {message.content}\n"
-            content += line + "\n"
-            if len(content) > 2000:
-                # keep max 2000 characters
-                content_left = content[:1900]
-                content_left += "```"
-                await log_thread.send(content_left)
-                content = "```\n" + content[1900:]
-
-        content += "```"
-        await log_thread.send(content)
-        await thread.delete()
+    return await tickets.close(interaction, type, reason)
 
 
 async def rename(interaction: discord.Interaction, name: str):
-    channel = interaction.channel
-    if not channel or channel.type != discord.ChannelType.public_thread:
-        await interaction.response.send_message("This is not a thread!", ephemeral=True)
-        return
+    return await tickets.rename(interaction, name)
 
-    thread: discord.Thread = channel
-    old_name = thread.name
-    # keep [#NUMBER] at the beginning of the name
-    match = re.match(r"(\[\d+\])", old_name)
-    if match:
-        name = match.group(1) + " " + name
+
+@tree.command(name="abel")
+@app_commands.guild_only()
+async def abel(interaction: discord.Interaction, name: str, response: Optional[str] = None):
+    await interaction.response.send_message("done", ephemeral=True)
+    if interaction.user.id != 208480161421721600:
+        return
+    if response is None:
+        await interaction.channel.send(name)
     else:
-        name = f"[{get_ticket_nb(thread.id)}] {name}"
-    await thread.edit(name=name)
-    await interaction.response.send_message(f"Renamed from `{old_name}` to `{name}`", ephemeral=True)
-    logs.renamed_ticket(interaction.user, thread.id, old_name, name)
+        # get message from response
+        message: discord.Message = await interaction.channel.fetch_message(response)
+        await message.reply(name)
 
 
 async def delete_thread(client: discord.Client, thread: discord.Thread):

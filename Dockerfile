@@ -8,6 +8,7 @@ RUN apk update && apk add postgresql gcc musl-dev python3-dev libffi-dev libpq-d
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY . .
+COPY src src
 
-CMD ["python3", "main.py"]
+WORKDIR /app/src
+CMD ["python3", "src/main.py"]
