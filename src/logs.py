@@ -10,11 +10,8 @@ import discord
 from src.db import execute_sql, cursor
 from src.types import TypeClose
 
-logger = logging.getLogger('logs')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+_log = setup_logging(__name__)
+
 
 
 def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reason: str):
@@ -26,7 +23,7 @@ def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reaso
     @param reason: Reason of the closing
     @return: None
     """
-    logger.info(
+    _log.info(
         f'action=close_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} type={type.name} ticket_id={ticket_id} reason=\"{reason}\"')
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
@@ -42,7 +39,7 @@ def new_ticket(ticket_id: int, name: str, student: discord.Member):
     @param student: User who created the ticket
     @return: None
     """
-    logger.info(
+    _log.info(
         f"action=new_ticket name=\"{name}\" user_id={student.id} user={student.name}#{student.discriminator} ticket_id={ticket_id}")
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
@@ -59,7 +56,7 @@ def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: st
     @param name: New name of the ticket
     @return: None
     """
-    logger.info(
+    _log.info(
         f"action=renamed_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} old_name=\"{old_name}\" name=\"{name}\"")
 
     cursor.execute("INSERT INTO Logs (log_type,ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
@@ -76,7 +73,7 @@ def deleted_ticket(ticket_id: int, name: str, user: discord.Member):
     @param user: User who deleted the ticket
     @return:
     """
-    logger.info(
+    _log.info(
         f"action=deleted_ticket ticket_id={ticket_id} name=\"{name}\" user_id={user.id} user={user.name}#{user.discriminator}")
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
@@ -91,7 +88,7 @@ def joined_ticket(manager: discord.Member, ticket_id: int):
     @param ticket_id: ID of the ticket
     @return: None
     """
-    logger.info(
+    _log.info(
         f"action=joined_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} ticket_id={ticket_id}")
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
@@ -107,7 +104,7 @@ def error(user: discord.Member, err: Exception, id_err: UUID):
     @param id_err: ID of the error
     @return: None
     """
-    logger.error(f"action=error user_id={user.id} user={user.name}#{user.discriminator} error={err} err_id={id_err}")
+    _log.error(f"action=error user_id={user.id} user={user.name}#{user.discriminator} error={err} err_id={id_err}")
 
 
 def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discord.Member):
@@ -119,7 +116,7 @@ def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discor
     @param owner: Owner of the ticket
     @return: None
     """
-    logger.info(
+    _log.info(
         f"action=reopen_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} name=\"{name}\" owner_id={owner.id} owner={owner.name}#{owner.discriminator}")
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
@@ -136,7 +133,7 @@ def trace_ticket(user: discord.Member, channel_id: int, login: str, tag: str):
     @param tag: Tag of the user
     @return: None
     """
-    logger.info(
+    _log.info(
         f"action=trace_ticket user_id={user.id} user={user.name}#{user.discriminator} channel_id={channel_id} login=\"{login}\" tag=\"{tag}\"")
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
@@ -152,7 +149,7 @@ def closed_trace_ticket(user: discord.Member, channel_id: int, tag: str):
     @param tag: Tag of the user
     @return: None
     """
-    logger.info(
+    _log.info(
         f"action=closed_trace_ticket user_id={user.id} user={user.name}#{user.discriminator} channel_id={channel_id} tag=\"{tag}\"")
 
     cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
