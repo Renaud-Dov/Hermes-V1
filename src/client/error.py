@@ -6,6 +6,7 @@ import uuid
 import discord
 from discord.app_commands import AppCommandError
 
+from src import exceptions
 from src import logs
 
 
@@ -26,6 +27,8 @@ def get_error_message(error: AppCommandError) -> str:
             return "An error occurred while invoking the command"
         case discord.app_commands.CommandNotFound:
             return "The command was not found"
+        case exceptions.NotAThread:
+            return "This is not a thread, you can't use this command here"
         case _:
             return "Unknown error"
 
@@ -34,7 +37,7 @@ async def errors(interaction: discord.Interaction, error: AppCommandError):
     message = get_error_message(error)
     id_err = uuid.uuid4()
     embed = discord.Embed(title="λάθος",
-                          description=f"An error occurred: {message}.\nPlease try again later or contact an assistant",
+                          description=f"**An error occurred:** {message}.\n\nPlease try again later or contact an assistant.",
                           color=discord.Color.red())
     embed.add_field(name="ID Error", value=id_err, inline=False)
     embed.set_footer(text="μην τα σπας όλα")
