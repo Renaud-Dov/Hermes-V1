@@ -11,8 +11,6 @@ from src.client.checks import is_me
 @is_me()
 async def send_message(interaction: discord.Interaction, name: str, response: Optional[str] = None):
     await interaction.response.send_message("done", ephemeral=True)
-    if interaction.user.id != 208480161421721600:
-        return
     if response is None:
         await interaction.channel.send(name)
     else:

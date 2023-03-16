@@ -2,12 +2,9 @@
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
 
-print("Loading src.actions.links")
-from . import (
-    git,
-    intra,
-    google,
-    link
-)
+from .git import *
+from .google import *
+from .intra import *
+from .link import *
 
 __all__ = ["git", "intra", "google", "link"]

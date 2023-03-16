@@ -3,7 +3,7 @@
 #  All right reserved
 import discord
 
-from src.db import get_id_ticket
+from src.other.db import get_id_ticket
 
 
 async def link(interaction: discord.Interaction, id: int):
