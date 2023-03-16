@@ -11,7 +11,6 @@ from discord import app_commands
 import src.actions.links
 from src import Embed, tools, logs
 from src.actions import tickets
-from src.client import tree
 from src.config import Config, TicketFormat
 from src.db import get_ticket_nb, add_ticket
 from src.tools import find_ticket_from_logs
@@ -26,7 +25,6 @@ async def rename(interaction: discord.Interaction, name: str):
     return await tickets.rename(interaction, name)
 
 
-@tree.command(name="abel")
 @app_commands.guild_only()
 async def abel(interaction: discord.Interaction, name: str, response: Optional[str] = None):
     await interaction.response.send_message("done", ephemeral=True)

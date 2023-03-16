@@ -18,6 +18,13 @@ BITLY_TOKEN = os.getenv("BITLY_TOKEN")
 # @tree.command(name="google", description="What do you know about `Let me google that for you`?")
 @app_commands.describe(query="Query to search")
 async def google(interaction: discord.Interaction, query: str, message: Optional[str]):
+    """
+
+    @param interaction:
+    @param query: Query to search on google
+    @param message: Message to send before the link
+    @return:
+    """
     # transform query in url format
     query = urllib.parse.quote(query)
 

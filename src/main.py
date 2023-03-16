@@ -1,12 +1,21 @@
 #  Copyright (c) 2023.
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
+import os
 
 import client
+from client import commands
 
-a = client.tree
+client = client.HermesClient()
 
-client.login()
+client.add_commands(commands.commands)
+
+try:
+    DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+    client.run(DISCORD_TOKEN)
+except Exception as e:
+    client.logger.exception(e)
+    exit(1)
 
 # @tree.command(name="trace", description="Create a trace ticket")
 # @app_commands.describe(category="Category tag assistants told you to use")
