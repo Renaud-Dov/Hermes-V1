@@ -3,9 +3,10 @@
 #  All right reserved
 import discord
 
-from src import Embed, tools, logs
-from src.tools import find_ticket_from_logs
-from src.types import TypeClose, status_converter
+from src import logs
+from src.other import tools, Embed
+from src.other.tools import find_ticket_from_logs
+from src.other.types import TypeClose, status_converter
 
 
 async def close(interaction: discord.Interaction, type: TypeClose, reason: str = None):
