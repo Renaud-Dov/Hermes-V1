@@ -105,3 +105,11 @@ class Config:
                 if role.id in managers_category.roles:  # type: int
                     return managers_category
         return None
+
+
+config = Config("config/config.yaml")
+
+
+def update_config():
+    global config
+    config = Config("config/config.yaml")

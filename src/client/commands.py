@@ -14,4 +14,6 @@ commands = [
     {'command': Command(name="rename", description="Rename a ticket", callback=tickets.rename)},
     {'command': Command(name="link", description="Link to another ticket", callback=links.link)},
     {'command': Command(name="abel", description="...", callback=extras.send_message)},
+    {'command': Command(name="trace", description="Trace a ticket", callback=tickets.trace_ticket)},
+    {'command': Command(name="close_trace", description="Close a trace ticket", callback=tickets.close_trace_ticket)},
 ]
