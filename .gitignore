@@ -6,3 +6,5 @@ package-lock.json
 node_modules/
 config/config.yaml
 test.py
+table.sql
+threads.txt
