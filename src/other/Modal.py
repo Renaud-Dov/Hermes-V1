@@ -5,10 +5,10 @@
 import discord
 from discord import ui
 
-from src.Embed import newTraceEmbed, urlButton, rulesTicketEmbed
 from src.config import TicketFormat
 from src.logs import trace_ticket
-from src.tools import create_private_channel
+from src.other.Embed import newTraceEmbed, urlButton, rulesTicketEmbed
+from src.other.tools import create_private_channel
 
 
 class AskQuestion(ui.Modal, title='Trace ticket'):

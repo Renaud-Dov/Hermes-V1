@@ -3,14 +3,16 @@
 #  All right reserved
 import discord
 
-from src import tools, actions
+from src import actions
 from src.config import Config
-from src.types import TypeStatusTicket, TypeClose
+from src.other import tools
+from src.other.types import TypeStatusTicket, TypeClose
 
 
 def urlButton(url: str) -> discord.ui.Button:
     """
     Create a button with a link
+    @rtype: object
     @param url: Url of the link
     @return: Button
     """

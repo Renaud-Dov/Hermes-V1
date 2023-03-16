@@ -2,16 +2,15 @@
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
 
-import logging
 from uuid import UUID
 
 import discord
 
-from src.db import execute_sql, cursor
-from src.types import TypeClose
+from src.other.db import execute_sql, cursor
+from src.other.types import TypeClose
+from src.utils import setup_logging
 
 _log = setup_logging(__name__)
-
 
 
 def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reason: str):
