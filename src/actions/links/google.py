@@ -10,10 +10,11 @@ import discord
 import requests
 from discord import app_commands
 
-from src.logs import logger
+from src.utils import setup_logging
 
 BITLY_TOKEN = os.getenv("BITLY_TOKEN")
 
+_log = setup_logging(__name__)
 
 # @tree.command(name="google", description="What do you know about `Let me google that for you`?")
 @app_commands.describe(query="Query to search")
@@ -35,6 +36,7 @@ async def google(interaction: discord.Interaction, query: str, message: Optional
     }))
     if not r.ok:
         await interaction.response.send_message(f"Error while creating link: {r.json()}", ephemeral=True)
+        _log.error(f"Error while creating link: {r.json()}")
         return
     r = r.json()
 
@@ -45,4 +47,4 @@ async def google(interaction: discord.Interaction, query: str, message: Optional
     await interaction.response.send_message("Send message", ephemeral=True)
     await interaction.channel.send(message + r["link"], suppress_embeds=True)
 
-    logger.info(f"Google command used by {interaction.user} with query {query} : {r['link']}")
+    _log.info(f"Google command used by {interaction.user} with query {query} : {r['link']}")
