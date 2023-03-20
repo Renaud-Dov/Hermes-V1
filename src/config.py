@@ -13,15 +13,9 @@ class ManagerFormat:
     def __init__(self, manager: dict):
         self.manager = manager
         self.category = manager["category"]
-        self.ticket_msg = manager["ticket_msg"]
+        self.msg = manager["message"]
         self.roles: List[int] = manager["roles"] if "roles" in manager else []
         self.users: List[int] = manager["users"] if "users" in manager else []
-
-
-class SettingsFormat:
-    def __init__(self, managers: List[dict]):
-        # regex for matching a discord snowflake
-        self.managers = [ManagerFormat(m) for m in managers]
 
 
 class PracticalsTagFormat:
@@ -29,6 +23,7 @@ class PracticalsTagFormat:
         self.id = tag["id"]
         self.from_date = datetime.strptime(tag["from"], "%Y-%m-%d %H:%M:%S")
         self.to_date = datetime.strptime(tag["to"], "%Y-%m-%d %H:%M:%S")
+
 
 class ForumFormat:
     def __init__(self, forum: dict):
@@ -50,12 +45,12 @@ class Config:
     def __init__(self, config_file):
         with open(config_file, 'r') as f:
             self._config = yaml.safe_load(f)
-        self.settings = SettingsFormat(**self._config['settings'])
+        self.managers = [ManagerFormat(m) for m in self._config['managers']]
 
         self.forums = [ForumFormat(list(forum.values())[0]) for forum in self._config['forums']]
         self.tickets = {key: TicketFormat(value) for key, value in self._config['tickets'].items()}
         self.groups: Dict[str, int] = self._config['groups']
-        self.tags : List[int] = self._config['tags']
+        self.tags: List[int] = self._config['tags']
 
     def get_forum(self, forum_id):
         return next((forum for forum in self.forums if forum.id == forum_id), None)
@@ -63,7 +58,6 @@ class Config:
     def get_open_tag_tickets(self):
         """Returns a list of open tickets categories"""
         return [ticket for ticket in self.tickets if self.tickets[ticket].open_tag]
-
 
     def __get_tickets_groupsIDS(self, ticket: TicketFormat) -> List[int]:
         """Returns a list of group ids for a ticket"""
@@ -97,8 +91,7 @@ class Config:
         @param member: Discord member
         @return: Manager category or None
         """
-        managers = self.settings.managers
-        for managers_category in managers:
+        for managers_category in self.managers:
             if member.id in managers_category.users:  # type: int
                 return managers_category
             for role in member.roles:  # type: discord.Role

@@ -6,14 +6,13 @@ import asyncio
 import discord
 
 from src import logs
-from src.config import Config
+from src.config import config
 from src.other import Embed
 from src.other.db import add_ticket, get_ticket_nb
 from src.other.types import TypeStatusTicket
 
 
 async def create_ticket(client: discord.Client, thread: discord.Thread):
-    config = Config("config/config.yaml")
     config_forum = config.get_forum(thread.parent_id)
     if not config_forum:
         return

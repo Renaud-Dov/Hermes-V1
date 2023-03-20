@@ -8,7 +8,7 @@ import discord
 from src.config import Config
 
 
-async def update_thread(client: discord.Client, before: discord.Thread, after: discord.Thread):
+async def update_ticket(client: discord.Client, before: discord.Thread, after: discord.Thread):
     config_forum = Config("config/config.yaml").get_forum(after.parent_id)
     if not config_forum:
         return

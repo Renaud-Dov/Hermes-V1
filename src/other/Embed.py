@@ -3,9 +3,8 @@
 #  All right reserved
 import discord
 
-from src import actions
+from src.actions import tickets
 from src.config import Config
-from src.other import tools
 from src.other.types import TypeStatusTicket, TypeClose
 
 
@@ -29,7 +28,7 @@ class ReopenView(discord.ui.View):
 
     @discord.ui.button(label="Reopen", style=discord.ButtonStyle.green, emoji="🔓")
     async def reopen(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await actions.reopen_ticket(interaction)
+        await tickets.reopen_ticket(interaction)
 
 
 def newThreadEmbed(thread: discord.Thread, status: TypeStatusTicket):
@@ -69,9 +68,9 @@ def doneEmbed(member: discord.Member, status: TypeClose, config: Config, reason:
     """
     embed = discord.Embed(title="Ticket has been closed by an assistant.", description=reason,
                           color=discord.Color.blue())
-    category = tools.find_manager_category(member, config)
+    category = config.find_manager_category(member)
     if category:
-        embed.title = category.ticket_msg
+        embed.title = category.msg
 
     match status:
         case TypeClose.Duplicate:

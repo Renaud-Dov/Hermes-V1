@@ -47,20 +47,20 @@ class HermesClient(discord.Client):
     ############################
 
     async def on_thread_create(self, thread: discord.Thread):
-
+        _log.debug("Event on_thread_create triggered")
         await events.on_thread_create(self, thread)
 
-    @staticmethod
-    async def on_thread_delete(thread: discord.Thread):
-        await events.on_thread_delete(thread)
+    async def on_thread_delete(self, thread: discord.Thread):
+        _log.debug(f"Event on_thread_delete triggered")
+        await events.on_thread_delete(self, thread)
 
-    @staticmethod
-    async def on_thread_update(before: discord.Thread, after: discord.Thread):
-        await events.on_thread_update(before, after)
+    async def on_thread_update(self, before: discord.Thread, after: discord.Thread):
+        _log.debug(f"Event on_thread_update triggered")
+        await events.on_thread_update(self, before, after)
 
-    @staticmethod
-    async def on_thread_member_join(thread_member: discord.ThreadMember):
-        await events.on_thread_member_join(thread_member)
+    async def on_thread_member_join(self, thread_member: discord.ThreadMember):
+        _log.debug(f"Event on_thread_member_join triggered")
+        await events.on_thread_member_join(self, thread_member)
 
     def add_commands(self, commands):
         for command in commands:
