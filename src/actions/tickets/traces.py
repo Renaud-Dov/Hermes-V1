@@ -18,7 +18,7 @@ async def trace_ticket(interaction: discord.Interaction, category: str):
         return
     config_ticket: TicketFormat = config.tickets[category]
     groups_allowed = config_ticket.groups
-    user_roles = [str(role.id) for role in interaction.user.roles]
+    user_roles = [role.id for role in interaction.user.roles]
     if not any(role in groups_allowed for role in user_roles):
         await interaction.response.send_message(
             "You are not allowed to create a ticket in this category. Please choose one of the following: " + ", ".join(
