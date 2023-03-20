@@ -4,3 +4,6 @@
 *.md
 Dockerfile
 config/
+.pytest_cache
+.github
+venv/

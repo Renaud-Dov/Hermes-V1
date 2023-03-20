@@ -10,5 +10,5 @@ RUN pip3 install -r requirements.txt
 
 COPY src src
 
-WORKDIR /app/src
+ENV PYTHONPATH="${PYTHONPATH}:/app"
 CMD ["python3", "src/main.py"]
