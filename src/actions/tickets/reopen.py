@@ -4,7 +4,7 @@
 import discord
 
 from src import logs
-from src.config import Config
+from src.config import config
 from src.other import tools, Embed
 from src.other.types import TypeStatusTicket
 
@@ -25,7 +25,6 @@ async def reopen_ticket(interaction: discord.Interaction):
     if not thread:
         await interaction.response.send_message("I can't find the ticket, please contact an administrator.")
         return
-    config = Config("config/config.yaml")
     config_forum = config.get_forum(thread.parent_id)
     if not config_forum:
         return
