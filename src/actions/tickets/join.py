@@ -11,12 +11,13 @@ from src.other.types import TypeStatusTicket
 
 async def join_ticket(client: HermesClient, thread_member: discord.ThreadMember):
     thread = thread_member.thread
+    config = client.get_config(thread.guild.id)
     member: discord.Member = thread_member.thread.guild.get_member(thread_member.id)
-    config_forum = client.config.get_forum(thread.parent_id)
+    config_forum = config.get_forum(thread.parent_id)
 
     if not config_forum or thread.archived:
         return
-    category = client.config.find_manager_category(member)
+    category = config.find_manager_category(member)
     if not category:
         return
     log_chan = client.get_channel(config_forum.webhook_channel)

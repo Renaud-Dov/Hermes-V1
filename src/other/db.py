@@ -8,6 +8,7 @@ import psycopg2
 
 conn = psycopg2.connect(
     host=environ.get("DB_HOST"),
+    port=environ.get("DB_PORT"),
     database=environ.get("DB_DATABASE"),
     user=environ.get("DB_USERNAME"),
     password=environ.get("DB_PASSWORD")

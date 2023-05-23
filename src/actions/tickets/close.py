@@ -16,7 +16,7 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose] = Ty
     if not thread or thread.type != discord.ChannelType.public_thread or thread.locked:
         await interaction.response.send_message("This is not a opened thread!", ephemeral=True)
         return
-    config = interaction.client.config
+    config = interaction.client.get_config(interaction.guild_id)
     forum = config.get_forum(thread.parent_id)
     if not forum:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
@@ -71,7 +71,7 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose] = Ty
 
 async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: str = "0",
                     reason: Optional[str] = None):
-    config = interaction.client.config
+    config = interaction.client.get_config(interaction.guild_id)
     forum_config = config.get_forum(forum.id)
     if not forum_config:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)

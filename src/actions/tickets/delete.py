@@ -10,7 +10,7 @@ from src.other import Embed
 
 @checks.is_thread()
 async def delete_ticket(client: HermesClient, thread: discord.Thread):
-    config_forum = client.config.get_forum(thread.parent_id)
+    config_forum = client.get_config(thread.guild.id).get_forum(thread.parent_id)
     if not config_forum:
         return
     embed = Embed.deletedThreadEmbed(thread)

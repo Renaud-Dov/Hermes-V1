@@ -1,12 +1,15 @@
 #  Copyright (c) 2023.
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
+import os
+from typing import List
 
 import discord
 from discord import app_commands
 from discord.app_commands import Command
+from jsonschema.exceptions import ValidationError
 
-from src.config import Config
+from src.config import Config, ExtraCommand
 from src.utils import setup_logging
 from . import error, events
 
@@ -22,7 +25,8 @@ class HermesClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.tree.error(error.errors)
-        self.config = Config("config/config.yaml")
+        self.configs: List[Config] = []
+        self.__load_configs()
 
         # add update command
 
@@ -30,8 +34,50 @@ class HermesClient(discord.Client):
             Command(name="update", description="Update commands (Admin only)", callback=self.updateCommands),
             guilds=[discord.Object(id=999964493608144907), discord.Object(id=1033684799912677388)])
 
+
+    def __load_configs(self):
+        # scan all files in config directory, and load them
+        files = os.listdir("config")
+        self.configs = [] # reset configs
+        for file in files:
+            try:
+                config = Config(f"config/{file}")
+                self.configs.append(config)
+                _log.info(f"Loaded config file {file}")
+            except ValidationError as e:
+                _log.error(f"Error while loading config file {file}: {e.message}")
+                continue
+        _log.info(f"Loaded {len(self.configs)} config files")
+
+
+    async def __update_config_commands(self):
+        # update commands
+        for config in self.configs:
+            guild = discord.Object(id=config.meta.guild_id)
+            self.tree.clear_commands(guild=guild)
+            for command in config.extra_commands:
+                print(command.name)
+                def create_callback(cmd: ExtraCommand):
+                    async def callback(interaction: discord.Interaction):
+                        if cmd.hidden:
+                            await interaction.response.send_message("Done", ephemeral=True)
+                            await interaction.followup.send(content=cmd.message, embeds=cmd.embeds)
+                        else:
+                            await interaction.response.send_message(cmd.message, embeds=cmd.embeds, ephemeral=False)
+
+                    return callback
+
+                callback_func = create_callback(command)
+
+                self.tree.add_command(Command(name=command.name, description=command.description, callback=callback_func),
+                                      guild=discord.Object(id=config.meta.guild_id))
+
+            await self.tree.sync(guild=guild)
+            print("synced")
+
     async def on_ready(self):
         _log.info(f'{self.user} has connected to Discord!')
+        await self.__update_config_commands()
         commands = await self.tree.fetch_commands()
         _log.info(f"Global commands available: {', '.join([f'{command.name}' for command in commands])}")
         await self.change_presence(
@@ -40,8 +86,19 @@ class HermesClient(discord.Client):
     async def updateCommands(self, interaction: discord.Interaction):
         await self.tree.sync(guild=discord.Object(id=interaction.guild_id))
         await self.tree.sync()
-        self.config = Config("config/config.yaml")
-        await interaction.response.send_message("Updated commands and configuration")
+        old_configs = [config.file_name for config in self.configs]
+        self.__load_configs()
+
+        # compare old configs with new ones:
+        new_configs = [config.file_name for config in  self.configs]
+        diff_configs = list(set(old_configs) - set(new_configs))
+        if diff_configs:
+            await interaction.response.send_message(f"Updated commands and configuration, but some configs failed to load: {', '.join(diff_configs)}")
+        else:
+            await interaction.response.send_message("Updated all commands and configuration")
+
+        await self.__update_config_commands()
+
 
     ############################
     #  Events
@@ -70,3 +127,10 @@ class HermesClient(discord.Client):
                 self.tree.add_command(command['command'], guilds=guilds)
             else:
                 self.tree.add_command(command['command'])
+
+    def get_config(self, guild_id: int):
+        res = next((config for config in self.configs if config.meta.guild_id == guild_id), None)
+        if res is None:
+            raise ValueError(f"Config for guild {guild_id} not found")
+        return res
+

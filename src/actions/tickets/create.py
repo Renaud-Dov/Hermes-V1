@@ -13,7 +13,7 @@ from src.other.types import TypeStatusTicket
 
 
 async def create_ticket(client: HermesClient, thread: discord.Thread):
-    config = client.config
+    config = client.get_config(thread.guild.id)
     config_forum = config.get_forum(thread.parent_id)
     if not config_forum:
         return

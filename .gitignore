@@ -4,7 +4,7 @@ firebase.json
 
 package-lock.json
 node_modules/
-config/config.yaml
+config/
 test.py
 table.sql
 threads.txt

@@ -9,7 +9,7 @@ from src.client import HermesClient
 
 
 async def update_ticket(client: HermesClient, before: discord.Thread, after: discord.Thread):
-    config_forum = client.config.get_forum(after.parent_id)
+    config_forum = client.get_config(after.guild.id).get_forum(after.parent_id)
     if not config_forum:
         return
 

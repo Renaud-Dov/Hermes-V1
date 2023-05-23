@@ -9,7 +9,7 @@ from src.other.types import TypeStatusTicket
 
 
 async def reopen_ticket(interaction: discord.Interaction):
-    config = interaction.client.config
+    config = interaction.client.get_(interaction.guild_id)
     message = interaction.message
     if not message.embeds:
         await interaction.response.send_message("You have deleted embed, I can't find related data anymore.")

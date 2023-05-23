@@ -29,7 +29,7 @@ class AskQuestion(ui.Modal, title='Trace ticket'):
     async def on_submit(self, interaction: discord.Interaction):
         cat_channel = interaction.client.get_channel(self.config_ticket.category_channel)
         channel: discord.TextChannel = await create_private_channel(cat_channel, interaction.user,
-                                                                    f"trace-{self.login.value}".replace(".","_"))
+                                                                    f"trace-{self.login.value}".replace(".", "_"))
         await channel.send(embed=rulesTicketEmbed())
         msg = await channel.send(f"{interaction.user.mention} {self.login.value}")
         if self.question.value:

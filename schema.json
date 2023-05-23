@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "guild_id": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "guild_id"
+      ]
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "managers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "category",
+          "message"
+        ]
+      }
+    },
+    "forums": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "prog": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "end_tag": {
+                "type": "string"
+              },
+              "webhook_channel": {
+                "type": "integer"
+              },
+              "practicals_tags": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "from": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "to": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "from",
+                    "to"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "id",
+              "end_tag",
+              "webhook_channel",
+              "practicals_tags"
+            ]
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "tickets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "$name": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "open_tag": {
+                "type": "boolean"
+              },
+              "groups": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "category_channel": {
+                "type": "integer"
+              },
+              "webhook_channel": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "name",
+              "open_tag",
+              "groups",
+              "category_channel",
+              "webhook_channel"
+            ]
+          }
+        }
+      }
+    },
+    "extra_commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+            "description": {
+                "type": "string"
+            },
+          "hidden": {
+            "type": "boolean",
+            "default": false
+          },
+          "message": {
+            "type": "string"
+          },
+          "embeds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+            "description"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "message"
+            ]
+          },
+          {
+            "required": [
+              "embeds"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "meta",
+    "groups",
+    "users",
+    "tags",
+    "managers",
+    "forums",
+    "tickets",
+    "extra_commands"
+  ]
+}

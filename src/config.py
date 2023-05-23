@@ -4,9 +4,32 @@
 
 from datetime import datetime
 from typing import List, Optional, Dict
+from jsonschema import validate
 
 import discord
 import yaml
+import json
+
+file = open("schema.json", 'r')
+schema = json.load(file)
+file.close()
+
+
+class Meta:
+    def __init__(self, meta: dict):
+        self.name: str = meta["name"]
+        self.description: str = meta["description"]
+        self.guild_id: int = meta["guild_id"]
+
+
+class ExtraCommand:
+    def __init__(self, command: dict):
+        self.name: str = command["name"]
+        self.description: str = command["description"]
+        self.message: Optional[str] = command.get("message", "")
+        self.embeds: Optional[List[dict]] = command.get("embeds", [])
+        self.embeds = [discord.Embed(title=embed["title"], description=embed["description"]) for embed in self.embeds]
+        self.hidden: bool = command.get("hidden", False)
 
 
 class ManagerFormat:
@@ -52,12 +75,18 @@ class Config:
     def __init__(self, config_file):
         with open(config_file, 'r') as f:
             self._config = yaml.safe_load(f)
+        validate(instance=self._config, schema=schema)
+
+        self.file_name = config_file
+        self.meta = Meta(self._config["meta"])
         self.managers = [ManagerFormat(m) for m in self._config['managers']]
 
         self.forums = [ForumFormat(list(forum.values())[0]) for forum in self._config['forums']]
-        self.tickets = {key: TicketFormat(value) for key, value in self._config['tickets'].items()}
+        self.tickets = {ticket["name"]: TicketFormat(ticket) for ticket in self._config['tickets']}
         self.groups: Dict[str, int] = self._config['groups']
         self.tags: List[int] = self._config['tags']
+
+        self.extra_commands = [ExtraCommand(command) for command in self._config['extra_commands']]
 
     def get_forum(self, forum_id):
         return next((forum for forum in self.forums if forum.id == forum_id), None)
