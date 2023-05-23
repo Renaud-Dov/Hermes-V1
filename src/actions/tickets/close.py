@@ -6,7 +6,6 @@ from typing import Optional
 import discord
 
 from src import logs
-from src.config import config
 from src.other import tools, Embed
 from src.other.tools import find_ticket_from_logs
 from src.other.types import TypeClose, status_converter
@@ -17,7 +16,7 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose] = Ty
     if not thread or thread.type != discord.ChannelType.public_thread or thread.locked:
         await interaction.response.send_message("This is not a opened thread!", ephemeral=True)
         return
-
+    config = interaction.client.config
     forum = config.get_forum(thread.parent_id)
     if not forum:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
@@ -70,12 +69,17 @@ async def close(interaction: discord.Interaction, type: Optional[TypeClose] = Ty
         await thread.delete()
 
 
-async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: int = 0,
+async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: str = "0",
                     reason: Optional[str] = None):
+    config = interaction.client.config
     forum_config = config.get_forum(forum.id)
     if not forum_config:
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
         return
+    if not tag.isdigit():
+        await interaction.response.send_message("This tag does not exist!", ephemeral=True)
+        return
+    tag = int(tag)
     if tag == 0:
         await interaction.response.send_message(
             "Tags: " + ", ".join([f"`{tag.id} {tag.name}`" for tag in forum.available_tags]), ephemeral=True)

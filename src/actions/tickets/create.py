@@ -6,13 +6,14 @@ import asyncio
 import discord
 
 from src import logs
-from src.config import config
+from src.client import HermesClient
 from src.other import Embed
 from src.other.db import add_ticket, get_ticket_nb
 from src.other.types import TypeStatusTicket
 
 
-async def create_ticket(client: discord.Client, thread: discord.Thread):
+async def create_ticket(client: HermesClient, thread: discord.Thread):
+    config = client.config
     config_forum = config.get_forum(thread.parent_id)
     if not config_forum:
         return
@@ -30,8 +31,12 @@ async def create_ticket(client: discord.Client, thread: discord.Thread):
 
     tag_id = config.get_week_practical_tag(thread)
     if tag_id:
-        await thread.add_tags(thread.parent.get_tag(tag_id))
-        await thread.send(f"Auto added tag {thread.parent.get_tag(tag_id).name}")
+        tag = thread.parent.get_tag(tag_id)
+        if not tag:
+            await thread.send(f"Error: tag {tag_id} not found")
+        else:
+            await thread.add_tags(tag)
+            await thread.send(f"Auto added tag {thread.parent.get_tag(tag_id).name}")
 
     if "Moulinette" in [tag.name for tag in thread.applied_tags]:
         await asyncio.sleep(0.5)

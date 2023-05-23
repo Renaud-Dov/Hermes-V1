@@ -4,14 +4,13 @@
 import discord
 
 from src import logs
-from src.client import checks
-from src.config import config
+from src.client import checks, HermesClient
 from src.other import Embed
 
 
 @checks.is_thread()
-async def delete_ticket(client: discord.Client, thread: discord.Thread):
-    config_forum = config.get_forum(thread.parent_id)
+async def delete_ticket(client: HermesClient, thread: discord.Thread):
+    config_forum = client.config.get_forum(thread.parent_id)
     if not config_forum:
         return
     embed = Embed.deletedThreadEmbed(thread)

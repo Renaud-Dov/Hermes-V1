@@ -5,12 +5,13 @@
 import discord
 
 from src import logs
-from src.config import TicketFormat, config
+from src.config import TicketFormat
 from src.other import Modal
 from src.other.tools import find_ticket_from_logs
 
 
 async def trace_ticket(interaction: discord.Interaction, category: str):
+    config = interaction.client.config
     tags_list = config.get_open_tag_tickets()
     if category not in tags_list:
         await interaction.response.send_message(
@@ -61,6 +62,7 @@ async def __close_trace_ticket(interaction: discord.Interaction, config_ticket: 
 
 async def close_trace_ticket(interaction: discord.Interaction):
     channel = interaction.channel
+    config = interaction.client.config
     tags_list = config.get_open_tag_tickets()
     for tag in tags_list:
         config_ticket: TicketFormat = config.tickets[tag]

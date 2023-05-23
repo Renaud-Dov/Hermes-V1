@@ -10,7 +10,7 @@ from src.exceptions import NotAThread
 def is_me():
     def predicate(interaction: discord.Interaction) -> bool:
         print(interaction.user.id)
-        return interaction.user.id == 2084801614217216001
+        return interaction.user.id == 208480161421721600
 
     return app_commands.check(predicate)
 

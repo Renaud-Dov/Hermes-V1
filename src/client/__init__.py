@@ -6,7 +6,7 @@ import discord
 from discord import app_commands
 from discord.app_commands import Command
 
-from src.config import update_config
+from src.config import Config
 from src.utils import setup_logging
 from . import error, events
 
@@ -22,6 +22,7 @@ class HermesClient(discord.Client):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
         self.tree.error(error.errors)
+        self.config = Config("config/config.yaml")
 
         # add update command
 
@@ -39,7 +40,7 @@ class HermesClient(discord.Client):
     async def updateCommands(self, interaction: discord.Interaction):
         await self.tree.sync(guild=discord.Object(id=interaction.guild_id))
         await self.tree.sync()
-        update_config()
+        self.config = Config("config/config.yaml")
         await interaction.response.send_message("Updated commands and configuration")
 
     ############################

@@ -3,20 +3,20 @@
 #  All right reserved
 import discord
 
-from src.config import config
+from src.client import HermesClient
 from src.other import Embed
 from src.other.tools import find_ticket_from_logs
 from src.other.types import TypeStatusTicket
 
 
-async def join_ticket(client: discord.Client, thread_member: discord.ThreadMember):
+async def join_ticket(client: HermesClient, thread_member: discord.ThreadMember):
     thread = thread_member.thread
     member: discord.Member = thread_member.thread.guild.get_member(thread_member.id)
-    config_forum = config.get_forum(thread.parent_id)
+    config_forum = client.config.get_forum(thread.parent_id)
 
     if not config_forum or thread.archived:
         return
-    category = config.find_manager_category(member)
+    category = client.config.find_manager_category(member)
     if not category:
         return
     log_chan = client.get_channel(config_forum.webhook_channel)

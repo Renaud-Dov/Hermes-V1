@@ -4,12 +4,12 @@
 import discord
 
 from src import logs
-from src.config import config
 from src.other import tools, Embed
 from src.other.types import TypeStatusTicket
 
 
 async def reopen_ticket(interaction: discord.Interaction):
+    config = interaction.client.config
     message = interaction.message
     if not message.embeds:
         await interaction.response.send_message("You have deleted embed, I can't find related data anymore.")

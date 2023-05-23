@@ -5,11 +5,11 @@ import asyncio
 
 import discord
 
-from src.config import config
+from src.client import HermesClient
 
 
-async def update_ticket(client: discord.Client, before: discord.Thread, after: discord.Thread):
-    config_forum = config.get_forum(after.parent_id)
+async def update_ticket(client: HermesClient, before: discord.Thread, after: discord.Thread):
+    config_forum = client.config.get_forum(after.parent_id)
     if not config_forum:
         return
 

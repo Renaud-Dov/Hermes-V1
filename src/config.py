@@ -14,8 +14,12 @@ class ManagerFormat:
         self.manager = manager
         self.category = manager["category"]
         self.msg = manager["message"]
-        self.roles: List[int] = manager["roles"] if "roles" in manager else []
-        self.users: List[int] = manager["users"] if "users" in manager else []
+        self.roles: List[int] = manager.get("roles", [])
+        if not self.roles:
+            self.roles = []
+        self.users: List[int] = manager.get("users", [])
+        if not self.users:
+            self.users = []
 
 
 class PracticalsTagFormat:
@@ -39,6 +43,9 @@ class TicketFormat:
         self.webhook_channel = ticket["webhook_channel"]
         self.category_channel = ticket["category_channel"]
         self.groups: List[str] = ticket["groups"] if "groups" in ticket else []
+
+    def __str__(self):
+        return f"open_tag: {self.open_tag}, webhook_channel: {self.webhook_channel}, category_channel: {self.category_channel}, groups: {self.groups}"
 
 
 class Config:
@@ -98,11 +105,3 @@ class Config:
                 if role.id in managers_category.roles:  # type: int
                     return managers_category
         return None
-
-
-config = Config("config/config.yaml")
-
-
-def update_config():
-    global config
-    config = Config("config/config.yaml")
