@@ -62,13 +62,15 @@ class ForumFormat:
 
 class TicketFormat:
     def __init__(self, ticket: dict):
-        self.open_tag = ticket["open_tag"]
+        self.name = ticket["name"]
+        self.from_date = datetime.strptime(ticket["from"], "%Y-%m-%d %H:%M:%S")
+        self.to_date = datetime.strptime(ticket["to"], "%Y-%m-%d %H:%M:%S")
         self.webhook_channel = ticket["webhook_channel"]
         self.category_channel = ticket["category_channel"]
         self.groups: List[str] = ticket["groups"] if "groups" in ticket else []
 
     def __str__(self):
-        return f"open_tag: {self.open_tag}, webhook_channel: {self.webhook_channel}, category_channel: {self.category_channel}, groups: {self.groups}"
+        return self.name
 
 
 class Config:
@@ -82,7 +84,7 @@ class Config:
         self.managers = [ManagerFormat(m) for m in self._config['managers']]
 
         self.forums = [ForumFormat(list(forum.values())[0]) for forum in self._config['forums']]
-        self.tickets = {ticket["name"]: TicketFormat(ticket) for ticket in self._config['tickets']}
+        self.tickets = [TicketFormat(ticket) for ticket in self._config['tickets']]
         self.groups: Dict[str, int] = self._config['groups']
         self.tags: List[int] = self._config['tags']
 
@@ -91,9 +93,13 @@ class Config:
     def get_forum(self, forum_id):
         return next((forum for forum in self.forums if forum.id == forum_id), None)
 
+    def get_ticket(self, tag):
+        return next((ticket for ticket in self.tickets if ticket.name == tag), None)
+
     def get_open_tag_tickets(self):
         """Returns a list of open tickets categories"""
-        return [ticket for ticket in self.tickets if self.tickets[ticket].open_tag]
+        now = datetime.now()
+        return [ticket for ticket in self.tickets if ticket.from_date <= now <= ticket.to_date]
 
     def __get_tickets_groupsIDS(self, ticket: TicketFormat) -> List[int]:
         """Returns a list of group ids for a ticket"""
@@ -101,7 +107,7 @@ class Config:
 
     def get_all_tickets_categories(self):
         """Returns a list of all tickets categories"""
-        return [ticket.category_channel for ticket in self.tickets.values()]
+        return [ticket.category_channel for ticket in self.tickets]
 
     def got_ticket_group(self, ticket: TicketFormat, roles: List[int]):
         """Checks if the user has a role that is in the ticket groups"""

@@ -13,17 +13,18 @@ from src.other.tools import find_ticket_from_logs
 async def trace_ticket(interaction: discord.Interaction, category: str):
     config = interaction.client.get_config(interaction.guild_id)
     tags_list = config.get_open_tag_tickets()
+    name_tags = [tag.name for tag in tags_list]
     if category not in tags_list:
         await interaction.response.send_message(
-            "Invalid category. Please choose one of the following: " + ", ".join(tags_list), ephemeral=True)
+            "Invalid category. Please choose one of the following: " + ", ".join(name_tags), ephemeral=True)
         return
-    config_ticket: TicketFormat = config.tickets[category]
+    config_ticket: TicketFormat = config.get_ticket(category)
     groups_allowed = config_ticket.groups
     user_roles = [role.id for role in interaction.user.roles]
     if not any(role in groups_allowed for role in user_roles):
         await interaction.response.send_message(
             "You are not allowed to create a ticket in this category. Please choose one of the following: " + ", ".join(
-                tags_list), ephemeral=True)
+                name_tags), ephemeral=True)
         return
     await interaction.response.send_modal(Modal.AskQuestion(category, config_ticket))
 
@@ -65,7 +66,7 @@ async def close_trace_ticket(interaction: discord.Interaction):
     config = interaction.client.get_config(interaction.guild_id)
     tags_list = config.get_open_tag_tickets()
     for tag in tags_list:
-        config_ticket: TicketFormat = config.tickets[tag]
+        config_ticket: TicketFormat = config.get_ticket(tag)
         if config_ticket.category_channel == channel.category_id:
             await __close_trace_ticket(interaction, config_ticket)
             return

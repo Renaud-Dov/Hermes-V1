@@ -4,17 +4,12 @@
 
 help me create the description of my program.
 
-It's a discord bot that helps assistants to logs, keep a trace a ticket status, and other tools for managing tickets. It also provides trace tickets when student want to report something the staff team.
+It's a discord bot that helps assistants to logs, keep a trace a ticket status, and other tools for managing tickets. It
+also provides trace tickets when student want to report something the staff team.
 
 Ticket are a alias of discord post in forums
 
-
-
 Hermes is a ticket manager, used to manage students questions on discord.
-
-
-
-
 
 # Installation
 
@@ -45,6 +40,9 @@ services:
 The configuration file is in the config folder.
 The file is in yaml format.
 
+You can use the schema.json file to validate your configuration file with your
+IDE: [https://raw.githubusercontent.com/Renaud-Dov/Hermes/main/schema.json](https://raw.githubusercontent.com/Renaud-Dov/Hermes/main/schema.json)
+
 ```yaml
 groups: # discord roles id
   - &ASSISTANT 123456789012345678
@@ -61,7 +59,7 @@ managers: # set the managers of the bot that can use the special commands
     roles: # allowed roles
       - *ASSISTANT
     users: # allowed users
-        - *userME
+      - *userME
 forums:
   - prog:
       id: 1019955558851289208 # forum id
@@ -79,9 +77,21 @@ tickets:
       - *ASSISTANT
     category_channel: 1040023558535000084 # category where the tickets are created
     webhook_channel: 1040188840557682740 # channel where the logs are sent
+
+extra_commands:
+  - name: git
+    description: "Link to the git tutorial."
+
+
+    message: # [optional]
+    embeds: # max of 10 embeds
+      - title: "Git tutorial"
+        description: "My git tutorial"
+
 ```
 
 To set up properly the discord forum, you should:
+
 - Create a tag that will be used to mark the tickets as closed (only forum moderators should be able to use this tag)
 - You should turn on the option `Require people to select tags when posting` in the forum settings.
 
@@ -93,14 +103,16 @@ See https://support.discord.com/hc/en-us/articles/10952702911639-Command-Permiss
 ## For students and assistants
 
 ### Ticket creation
+
 For students, basic tickets commands are directly triggered by the bot when a new discord post is created.
 If practical tag is missing from the ticket, the bot will add it automatically.
 Each ticket has an unique id, that is used to identify the ticket.
 
 ### /trace
-Student can open new trace tickets using /trace command, followed by the tag provided by the assistants.
-If the tag is incorrect or user doesn't have the permission to use the specified tag, the bot will send an error message, listing the available tags.
 
+Student can open new trace tickets using /trace command, followed by the tag provided by the assistants.
+If the tag is incorrect or user doesn't have the permission to use the specified tag, the bot will send an error
+message, listing the available tags.
 
 ### Extras
 
@@ -116,18 +128,22 @@ Assistants can use the following commands to manage the tickets, and trace ticke
 ### /close
 
 Inside a ticket thread, assistants can use the /close command to close the ticket.
-When closed, thread is locked, so no one can post in it anymore. However, creator of the ticket can reopen it from bot DM.
+When closed, thread is locked, so no one can post in it anymore. However, creator of the ticket can reopen it from bot
+DM.
 There are few optional options to use with this command:
- - type:
-   - `Resolve` (default): the ticket is marked as resolved
-   - `Duplicate`: the ticket is marked as duplicate, and warn the user that he should read the other tickets before opening a new one.
-   - `Delete`: the ticket is deleted (a copy of all messages is sent to the assistant in the logs channel)
-   - `ForceResolve`: the ticket is marked as resolved, but user won't be able to reopen it.
- - reason: the reason why the ticket is closed.
+
+- type:
+    - `Resolve` (default): the ticket is marked as resolved
+    - `Duplicate`: the ticket is marked as duplicate, and warn the user that he should read the other tickets before
+      opening a new one.
+    - `Delete`: the ticket is deleted (a copy of all messages is sent to the assistant in the logs channel)
+    - `ForceResolve`: the ticket is marked as resolved, but user won't be able to reopen it.
+- reason: the reason why the ticket is closed.
 
 ### /rename
 
-Inside a ticket thread, assistants can use the /rename command to rename the ticket, instead of going to the thread settings.
+Inside a ticket thread, assistants can use the /rename command to rename the ticket, instead of going to the thread
+settings.
 It's also useful because the bot will keep the ticket id in the title.
 
 ### /close_all
@@ -137,19 +153,16 @@ Close all the tickets of a specific tag.
 
 If not tag is specified, then it lists all the tags ids.
 
-
 ### /close_trace
 
 Inside a trace ticket channel, assistants can use the /close_trace command to close the ticket.
 When closed, channel is deleted, so no one can post in it anymore.
 All messages are saved in the logs channel.
 
-
 ### /link
 
 Generate a link to the ticket, knowing the ticket id.
 Works from any discord channel.
-
 
 # Development
 

@@ -127,37 +127,38 @@
       "items": {
         "type": "object",
         "properties": {
-          "$name": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "open_tag": {
-                "type": "boolean"
-              },
-              "groups": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "category_channel": {
-                "type": "integer"
-              },
-              "webhook_channel": {
-                "type": "integer"
-              }
-            },
-            "required": [
-              "name",
-              "open_tag",
-              "groups",
-              "category_channel",
-              "webhook_channel"
-            ]
+          "name": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "webhook_channel": {
+            "type": "integer"
+          },
+          "category_channel": {
+            "type": "integer"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           }
-        }
+        },
+        "required": [
+          "name",
+          "from",
+          "to",
+          "webhook_channel",
+          "category_channel",
+          "groups"
+        ]
       }
     },
     "extra_commands": {
@@ -168,9 +169,9 @@
           "name": {
             "type": "string"
           },
-            "description": {
-                "type": "string"
-            },
+          "description": {
+            "type": "string"
+          },
           "hidden": {
             "type": "boolean",
             "default": false
@@ -195,7 +196,7 @@
         },
         "required": [
           "name",
-            "description"
+          "description"
         ],
         "oneOf": [
           {
