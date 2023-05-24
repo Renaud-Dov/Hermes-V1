@@ -145,7 +145,7 @@ def closed_trace_ticket(user: discord.Member, channel_id: int, tag: str):
     Logs a ticket closing
     @param user: User who closed the ticket
     @param channel_id: ID of the channel
-    @param tag: Tag of the user
+    @param tag: Tag of the ticket
     @return: None
     """
     _log.info(

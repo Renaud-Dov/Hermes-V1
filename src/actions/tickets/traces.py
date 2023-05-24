@@ -61,7 +61,7 @@ async def __close_trace_ticket(interaction: discord.Interaction, config_ticket: 
         if content != "```\n```":  # if there is no content, don't send anything, it's useless
             await log_thread.send(content)
     await thread.delete()
-    logs.closed_trace_ticket(interaction.user, thread.id, config_ticket.open_tag)
+    logs.closed_trace_ticket(interaction.user, thread.id, config_ticket.name)
 
 
 async def close_trace_ticket(interaction: discord.Interaction):
@@ -69,8 +69,7 @@ async def close_trace_ticket(interaction: discord.Interaction):
     config = interaction.client.get_config(interaction.guild_id)
     tags_list = config.get_open_tag_tickets()
     for tag in tags_list:
-        config_ticket: TicketFormat = config.get_ticket(tag)
-        if config_ticket.category_channel == channel.category_id:
-            await __close_trace_ticket(interaction, config_ticket)
+        if tag.category_channel == channel.category_id:
+            await __close_trace_ticket(interaction, tag)
             return
     await interaction.response.send_message("This channel is not linked to a ticket!", ephemeral=True)
