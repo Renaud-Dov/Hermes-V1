@@ -8,12 +8,16 @@ from src import logs
 from src.config import TicketFormat
 from src.other import Modal
 from src.other.tools import find_ticket_from_logs
+from src.utils import setup_logging
+
+_log = setup_logging(__name__)
 
 
 async def trace_ticket(interaction: discord.Interaction, category: str):
     config = interaction.client.get_config(interaction.guild_id)
     tags_list = config.get_open_tag_tickets()
     name_tags = [tag.name for tag in tags_list]
+    _log.info(f"tags_list: {name_tags}")
     if category not in tags_list:
         await interaction.response.send_message(
             "Invalid category. Please choose one of the following: " + ", ".join(name_tags), ephemeral=True)

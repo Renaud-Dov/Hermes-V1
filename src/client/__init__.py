@@ -71,13 +71,17 @@ class HermesClient(discord.Client):
         new_configs = [config.file_name for config in self.configs]
         diff_configs = list(set(old_configs) - set(new_configs))
 
-        await self.__update_config_commands()
-
         if diff_configs:
             await interaction.response.send_message(
-                f"Updated commands and configuration, but some configs are missing from last update: {', '.join(diff_configs)}")
+                f"Updating commands and configuration, but some configs are missing from last update: {', '.join(diff_configs)}")
         else:
-            await interaction.response.send_message("Updated all commands and configuration")
+            await interaction.response.send_message("Updating all commands and configuration")
+
+        await self.__update_config_commands()
+
+        await interaction.followup.send("Done updating commands and configuration")
+
+
 
     ############################
     #  Events
