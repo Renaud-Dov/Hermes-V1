@@ -17,8 +17,7 @@ async def trace_ticket(interaction: discord.Interaction, category: str):
     config = interaction.client.get_config(interaction.guild_id)
     tags_list = config.get_open_tag_tickets()
     name_tags = [tag.name for tag in tags_list]
-    _log.info(f"tags_list: {name_tags}")
-    if category not in tags_list:
+    if category not in name_tags:
         await interaction.response.send_message(
             "Invalid category. Please choose one of the following: " + ", ".join(name_tags), ephemeral=True)
         return

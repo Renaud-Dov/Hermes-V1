@@ -99,9 +99,6 @@ class Config:
     def get_open_tag_tickets(self):
         """Returns a list of open tickets categories"""
         now = datetime.now()
-        print(now)
-        for ticket in self.tickets:
-            print("ticket", ticket.name, ticket.from_date, ticket.to_date, ticket.from_date <= now <= ticket.to_date)
         return [ticket for ticket in self.tickets if ticket.from_date <= now <= ticket.to_date]
 
     def __get_tickets_groupsIDS(self, ticket: TicketFormat) -> List[int]:
