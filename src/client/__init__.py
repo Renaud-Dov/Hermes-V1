@@ -12,6 +12,7 @@ from jsonschema.exceptions import ValidationError
 from src.config import Config, ExtraCommand
 from src.utils import setup_logging
 from . import error, events
+from ..exceptions import ConfigNotFound
 
 _log = setup_logging(__name__)
 
@@ -114,7 +115,7 @@ class HermesClient(discord.Client):
     def get_config(self, guild_id: int):
         res = next((config for config in self.configs if config.meta.guild_id == guild_id), None)
         if res is None:
-            raise ValueError(f"Config for guild {guild_id} not found")
+            raise ConfigNotFound(guild_id)
         return res
 
     async def update_guild_command(self, config):
