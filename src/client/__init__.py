@@ -12,7 +12,7 @@ from jsonschema.exceptions import ValidationError
 from src.config import Config, ExtraCommand
 from src.utils import setup_logging
 from . import error, events
-from ..exceptions import ConfigNotFound
+from src.exceptions import ConfigNotFound
 
 _log = setup_logging(__name__)
 
