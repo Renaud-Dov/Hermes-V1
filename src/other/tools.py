@@ -16,8 +16,10 @@ async def create_private_channel(category: discord.CategoryChannel, student: dis
     @param name: name of the channel
     @return: the created channel
     """
-    channel = await category.create_text_channel(name=name)
-    await channel.set_permissions(student, read_messages=True, send_messages=True)
+    channel = await category.create_text_channel(name=name, overwrites={
+        student: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+    })
+    # await channel.set_permissions(student, read_messages=True, send_messages=True)
     return channel
 
 
