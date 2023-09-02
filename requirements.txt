@@ -1,5 +1,6 @@
 discord.py~=2.2.3
 PyYAML~=6.0
 requests~=2.31.0
-psycopg2~=2.9.6
 jsonschema~=4.17.3
+SQLAlchemy~=2.0.19
+pydantic~=2.3.0
