@@ -38,7 +38,7 @@ async def create_ticket(client: HermesClient, thread: discord.Thread):
             await thread.add_tags(tag)
             await thread.send(f"Auto added tag {thread.parent.get_tag(tag_id).name}")
 
-    if "Solved" in [tag.name for tag in thread.applied_tags]:
+    if "Trace" in [tag.name for tag in thread.applied_tags]:
         await asyncio.sleep(0.5)
         await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
                           f"login and the tag of your trace below. {thread.owner.mention}")
