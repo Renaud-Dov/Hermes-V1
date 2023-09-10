@@ -19,7 +19,7 @@ class TicketLog(Base):
 
     kind: Mapped["LogType"]
     by: Mapped[str]
-    at: Mapped[datetime.datetime] = Column(DateTime(timezone=True), default=func.now())
+    at: Mapped[datetime.datetime] = mapped_column()
     message: Mapped[Optional[str]]
 
 
@@ -58,9 +58,9 @@ class Ticket(Base):
     status: Mapped["Status"] = mapped_column(default=Status.OPEN)
 
     created_by: Mapped[str] = mapped_column()
-    created_at: Mapped[datetime.datetime] = Column(DateTime(timezone=True), default=func.now())
+    created_at: Mapped[datetime.datetime] = mapped_column()
     taken_at: Mapped[Optional[datetime.datetime]] = mapped_column(default=None)
-    updated_at: Mapped[datetime.datetime] = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime.datetime] = mapped_column()
     closed_at: Mapped[Optional[datetime.datetime]] = mapped_column(default=None)
 
     participants: Mapped[List["TicketParticipant"]] = relationship(back_populates="ticket",

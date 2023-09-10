@@ -2,6 +2,7 @@
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
 import asyncio
+import datetime
 
 import discord
 from sqlalchemy.orm import Session
@@ -41,12 +42,13 @@ async def create_ticket(client: HermesClient, thread: discord.Thread):
     view = discord.ui.View().add_item(Embed.urlButton(thread.jump_url))
     webhook = client.get_channel(config_forum.webhook_channel)
     webhook_msg = await webhook.send(embed=embed, view=view)
+    time = datetime.datetime.utcnow()
     with Session(engine) as session: # create ticket in database
-        ticket = Ticket(thread_id=thread.id, created_by=thread.owner_id, name=thread.name, forum_id=thread.parent_id,
+        ticket = Ticket(thread_id=thread.id, created_by=thread.owner_id,created_at=time, updated_at=time, name=thread.name, forum_id=thread.parent_id,
                         webhook_message_url=webhook_msg.jump_url)
         session.add(ticket)
 
-        log = TicketLog(ticket=ticket, kind=LogType.CREATED_TICKET, by=thread.owner_id)
+        log = TicketLog(ticket=ticket, kind=LogType.CREATED_TICKET, by=thread.owner_id,at=time)
         session.add(log)
 
         session.commit()

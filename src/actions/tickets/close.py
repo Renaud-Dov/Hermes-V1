@@ -37,7 +37,9 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
         await interaction.response.send_message("This thread is not linked to a ticket!", ephemeral=True)
         return
 
-    ticket.closed_at = datetime.utcnow() # update closed_at in database
+    time = datetime.utcnow()
+    ticket.closed_at = time  # update closed_at in database
+    ticket.updated_at = time  # update updated_at in database
     log_chan = interaction.client.get_channel(forum.webhook_channel)
     # find the message in the log channel
     message = await url_to_message(client=interaction.client, url=ticket.webhook_message_url)
@@ -45,9 +47,9 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
         embed: discord.Embed = newThreadEmbed(thread, Status.CLOSED)
         await message.edit(embed=embed)
 
-    tags_name = [tag.name for tag in thread.applied_tags] # get tags to remove
+    tags_name = [tag.name for tag in thread.applied_tags]  # get tags to remove
 
-    if tag := tools.find_tag(thread.parent, forum.closing_tag): # if the closing tag is present, add it
+    if tag := tools.find_tag(thread.parent, forum.closing_tag):  # if the closing tag is present, add it
         await thread.add_tags(tag)
 
     response_embed = Embed.closingEmbed(interaction.user, type, config, reason)
@@ -55,31 +57,31 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
         case CloseType.Resolve | CloseType.ForceResolve | CloseType.Duplicate:
             await interaction.response.send_message("Marked as done", ephemeral=True)
             await thread.send(embed=response_embed)
-            if type == CloseType.Resolve: # send embed to user with reopen button
-                await thread.owner.send(embed=Embed.closedPMEmbed(ticket, thread, interaction.user), view=Embed.ReopenView())
-            await thread.edit(archived=True, locked=True) # archive thread and lock it
-            logs.close_ticket(interaction.user, type, thread.id, reason) # log the action
-            ticket.status = Status.CLOSED # update ticket status in database
-            log = TicketLog(ticket=ticket, kind=LogType.CLOSED_TICKET, by=interaction.user.id, message=reason)
+            if type == CloseType.Resolve:  # send embed to user with reopen button
+                await thread.owner.send(embed=Embed.closedPMEmbed(ticket, thread, interaction.user),
+                                        view=Embed.ReopenView())
+            await thread.edit(archived=True, locked=True)  # archive thread and lock it
+            logs.close_ticket(interaction.user, type, thread.id, reason)  # log the action
+            ticket.status = Status.CLOSED  # update ticket status in database
+            log = TicketLog(ticket=ticket, kind=LogType.CLOSED_TICKET, by=interaction.user.id, message=reason, at=time)
             session.add(log)
 
         case CloseType.Delete:
-            ticket.status = Status.DELETED # update ticket status in database
-            await thread.owner.send(embed=response_embed) # send embed to user
+            ticket.status = Status.DELETED  # update ticket status in database
+            await thread.owner.send(embed=response_embed)  # send embed to user
             log_msg = await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
             # create a new thread in response to the log message
             log_thread = await log_msg.create_thread(name=thread.name, auto_archive_duration=0)
             await tools.copy_thread_content(thread, log_thread)
             await thread.delete()
             logs.deleted_ticket(ticket_id=ticket.id, name=thread.name, user=interaction.user)
-            log = TicketLog(ticket=ticket, kind=LogType.DELETED_TICKET, by=interaction.user.id, message=reason)
+            log = TicketLog(ticket=ticket, kind=LogType.DELETED_TICKET, by=interaction.user.id, message=reason, at=time)
             session.add(log)
 
     for tag in tags_name:
-        ticket.tags.append(TicketTag(tag=tag)) # add tags to ticket in database
+        ticket.tags.append(TicketTag(tag=tag))  # add tags to ticket in database
 
     session.commit()
-
 
 # async def close_all(interaction: discord.Interaction, forum: discord.ForumChannel, tag: str = "0",
 #                     reason: Optional[str] = None):

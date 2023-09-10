@@ -2,6 +2,7 @@
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
 import re
+from datetime import datetime
 
 import discord
 from sqlalchemy import select
@@ -33,7 +34,7 @@ async def rename(interaction: discord.Interaction, name: str):
     await thread.edit(name=name)
     await interaction.response.send_message(f"Renamed from `{old_name}` to `{name}`", ephemeral=True)
     logs.renamed_ticket(interaction.user, thread.id, old_name, name)
-
-    log = TicketLog(ticket=ticket, kind=LogType.RENAMED_TICKET, by=interaction.user.id, message=f"Renamed from `{old_name}` to `{name}`")
+    ticket.updated_at = datetime.utcnow()
+    log = TicketLog(ticket=ticket, kind=LogType.RENAMED_TICKET, by=interaction.user.id, message=f"Renamed from `{old_name}` to `{name}`",at=datetime.utcnow())
     session.add(log)
     session.commit()

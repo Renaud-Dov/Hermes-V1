@@ -41,7 +41,7 @@ async def on_message(client: HermesClient, message: discord.Message):
         ticket.taken_at = datetime.utcnow()
         ticket.status = Status.IN_PROGRESS
 
-    log = TicketLog(ticket=ticket, kind=LogType.NEW_PARTICIPANT, by=message.author.id)
+    log = TicketLog(ticket=ticket, kind=LogType.NEW_PARTICIPANT, by=message.author.id, at=datetime.utcnow())
     session.add(log)
 
     session.commit()

@@ -62,7 +62,7 @@ async def reopen_ticket(interaction: discord.Interaction):
     ticket.status = Status.IN_PROGRESS
     ticket.tags = []
 
-    log = TicketLog(ticket=ticket, kind=LogType.REOPENED_TICKET, by=interaction.user.id)
+    log = TicketLog(ticket=ticket, kind=LogType.REOPENED_TICKET, by=interaction.user.id, at=datetime.utcnow())
     session.add(log)
 
     session.commit()
