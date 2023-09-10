@@ -69,7 +69,7 @@ class Config(BaseModel):
     guild_id: int = Field(..., description="Guild ID where the students are")
     managers: List[Manager] = Field(..., description="List of managers")
     forums: List[Forum] = Field(..., description="List of forums")
-    trace_tags: List[TraceTag] = Field(..., description="List of trace tags")
+    trace_tags: Optional[List[TraceTag]] = Field([], description="List of trace tags")
     extra_commands: Optional[List[ExtraCommand]] = Field([], description="List of extra commands")
 
     def get_forum(self, forum_id: int) -> Optional[Forum]:
