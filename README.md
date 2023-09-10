@@ -2,14 +2,8 @@
 
 # What is Hermes?
 
-help me create the description of my program.
-
 It's a discord bot that helps assistants to logs, keep a trace a ticket status, and other tools for managing tickets. It
 also provides trace tickets when student want to report something the staff team.
-
-Ticket are a alias of discord post in forums
-
-Hermes is a ticket manager, used to manage students questions on discord.
 
 # Installation
 

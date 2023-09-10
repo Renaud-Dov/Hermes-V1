@@ -60,7 +60,7 @@ class HermesClient(discord.Client):
         commands = await self.tree.fetch_commands()
         _log.info(f"Global commands available: {', '.join([f'{command.name}' for command in commands])}")
         await self.change_presence(
-            activity=discord.Activity(type=discord.ActivityType.watching, name="les dieux"))
+            activity=discord.Activity(type=discord.ActivityType.watching, name="tickets"))
 
     async def updateCommands(self, interaction: discord.Interaction):
         await self.tree.sync()
