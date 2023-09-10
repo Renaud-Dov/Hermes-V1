@@ -90,6 +90,3 @@ class Config(BaseModel):
 
     def get_open_tag_tickets(self) -> List[TraceTag]:
         return [tag for tag in self.trace_tags if tag.from_date < datetime.datetime.now() < tag.to_date]
-
-
-print(Config.schema_json(indent=2))
