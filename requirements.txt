@@ -4,3 +4,4 @@ requests~=2.31.0
 jsonschema~=4.17.3
 SQLAlchemy~=2.0.19
 pydantic~=2.3.0
+SQLAlchemy~=2.0.19
