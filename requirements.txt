@@ -5,3 +5,4 @@ jsonschema~=4.17.3
 SQLAlchemy~=2.0.19
 pydantic~=2.3.0
 SQLAlchemy~=2.0.19
+psycopg2==2.9.7
