@@ -33,8 +33,9 @@ async def on_thread_update(client: discord.Client, before: discord.Thread, after
     except ConfigNotFound as e:
         logger.error(e.message)
 
-async def on_thread_member_join(client: discord.Client, thread_member: discord.ThreadMember):
+
+async def on_message(client: discord.Client, message: discord.Message):
     try:
-        await tickets.join_ticket(client, thread_member)
+        await tickets.on_message(client, message)
     except ConfigNotFound as e:
         logger.error(e.message)

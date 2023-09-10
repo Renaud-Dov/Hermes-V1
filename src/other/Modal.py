@@ -5,14 +5,14 @@
 import discord
 from discord import ui
 
-from src.config import TicketFormat
+from src.domain.entity.guildConfig import TraceTag
 from src.logs import trace_ticket
 from src.other.Embed import newTraceEmbed, urlButton, rulesTicketEmbed
 from src.other.tools import create_private_channel
 
 
 class AskQuestion(ui.Modal, title='Trace ticket'):
-    def __init__(self, category_tag: str, config_ticket: TicketFormat):
+    def __init__(self, category_tag: str, config_ticket: TraceTag):
         """
         Init the modal
         @param category_tag: Ticket category tag

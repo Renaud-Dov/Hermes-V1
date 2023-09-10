@@ -2,8 +2,11 @@
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
 import discord
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from src.other.db import get_id_ticket
+from src.data.engine import engine
+from src.data.models import Ticket
 
 
 async def link(interaction: discord.Interaction, id: int):
@@ -13,8 +16,9 @@ async def link(interaction: discord.Interaction, id: int):
     @param id: ID of the ticket.
     @return:
     """
-    ticket_id = get_id_ticket(id)
-    if ticket_id == -1:
-        await interaction.response.send_message("Invalid ID", ephemeral=True)
-        return
-    await interaction.response.send_message(f"https://discord.com/channels/{interaction.guild.id}/{ticket_id}")
+    with Session(engine) as session:
+        ticket = session.execute(select(Ticket).where(Ticket.id == id)).scalar_one_or_none()
+        if ticket is None:
+            await interaction.response.send_message("Invalid ID", ephemeral=True)
+            return
+        await interaction.response.send_message(f"https://discord.com/channels/{ticket.forum_id}/{ticket.thread_id}")

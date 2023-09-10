@@ -38,12 +38,12 @@ def get_error_message(error: AppCommandError) -> Tuple[str, int]:
 async def errors(interaction: discord.Interaction, error: AppCommandError):
     message, code_err = get_error_message(error)
     id_err = uuid.uuid4()
-    embed = discord.Embed(title="λάθος",
+    embed = discord.Embed(title="Error",
                           description=f"**An error occurred:** {message}.\n\nPlease try again later or contact an assistant.",
                           color=discord.Color.red())
     embed.add_field(name="ID Error", value=id_err, inline=False)
     embed.add_field(name="Error code", value=code_err, inline=False)
-    embed.set_footer(text="μην τα σπας όλα")
+    embed.set_footer(text="We are sorry for the inconvenience.")
     try:
         await interaction.response.send_message(embed=embed, ephemeral=True)
     except discord.errors.NotFound:  # interaction not found

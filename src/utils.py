@@ -3,8 +3,11 @@
 #  All right reserved
 import logging
 import os
+import re
 import sys
-from typing import Any
+from typing import Any, Optional
+
+import discord
 
 
 def is_docker() -> bool:
@@ -93,3 +96,19 @@ def setup_logging(name: str, level: int = logging.INFO) -> logging.Logger:
     logger.addHandler(handler)
 
     return logger
+
+
+async def url_to_message(client: discord.Client, url: str) -> Optional[discord.Message]:
+    match = re.search(r'discord.com/channels/(\d+)/(\d+)/(\d+)', url)
+    if match:
+        guild_id, channel_id, message_id = map(int, match.groups())
+        guild = client.get_guild(guild_id)
+        if guild is None:
+            guild = await client.fetch_guild(guild_id)
+
+        channel = guild.get_channel(channel_id)
+        if channel is None:
+            channel = await client.fetch_channel(channel_id)
+
+        message = await channel.fetch_message(message_id)
+        return message

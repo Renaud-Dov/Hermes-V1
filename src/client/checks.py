@@ -1,16 +1,18 @@
 #  Copyright (c) 2023.
 #  Author: Dov Devers (https://bugbear.fr)
 #  All right reserved
+import os
+
 import discord
 from discord import app_commands
 
 from src.exceptions import NotAThread
 
+ADMIN_ID =int(os.environ.get("ADMIN_ID",208480161421721600))
 
 def is_me():
     def predicate(interaction: discord.Interaction) -> bool:
-        print(interaction.user.id)
-        return interaction.user.id == 208480161421721600
+        return interaction.user.id == ADMIN_ID
 
     return app_commands.check(predicate)
 

@@ -5,14 +5,15 @@ import os
 from typing import List, Optional
 
 import discord
+import yaml
 from discord import app_commands
 from discord.app_commands import Command
 from jsonschema.exceptions import ValidationError
 
-from src.config import Config, ExtraCommand
 from src.utils import setup_logging
 from . import error, events
 from src.exceptions import ConfigNotFound
+from src.domain.entity.guildConfig import Config, ExtraCommand
 
 _log = setup_logging(__name__)
 
@@ -33,7 +34,7 @@ class HermesClient(discord.Client):
 
         self.tree.add_command(
             Command(name="update", description="Update commands (Admin only)", callback=self.updateCommands),
-            guild=discord.Object(id=1033684799912677388))
+            guilds=[discord.Object(id=1033684799912677388), discord.Object(id=1130274409152778240)])
 
     def __load_configs(self):
         # scan all files in config directory, and load them
@@ -41,7 +42,9 @@ class HermesClient(discord.Client):
         self.configs = []  # reset configs
         for file in files:
             try:
-                config = Config(f"config/{file}")
+                with open(f"config/{file}", "r") as raw_file:
+                    data = yaml.safe_load(raw_file)
+                config = Config(**data)
                 self.configs.append(config)
                 _log.info(f"Loaded config file {file}")
             except ValidationError as e:
@@ -57,6 +60,7 @@ class HermesClient(discord.Client):
     async def on_ready(self):
         _log.info(f'{self.user} has connected to Discord!')
         await self.tree.sync(guild=discord.Object(id=1033684799912677388))
+        # await self.tree.sync(guild=discord.Object(id=1130274409152778240))
         commands = await self.tree.fetch_commands()
         _log.info(f"Global commands available: {', '.join([f'{command.name}' for command in commands])}")
         await self.change_presence(
@@ -65,11 +69,11 @@ class HermesClient(discord.Client):
     async def updateCommands(self, interaction: discord.Interaction):
         await self.tree.sync()
 
-        old_configs = [config.file_name for config in self.configs]
+        old_configs = [config.slug for config in self.configs]
         self.__load_configs()
 
         # compare old configs with new ones:
-        new_configs = [config.file_name for config in self.configs]
+        new_configs = [config.slug for config in self.configs]
         diff_configs = list(set(old_configs) - set(new_configs))
 
         if diff_configs:
@@ -100,9 +104,9 @@ class HermesClient(discord.Client):
         _log.debug(f"Event on_thread_update triggered")
         await events.on_thread_update(self, before, after)
 
-    async def on_thread_member_join(self, thread_member: discord.ThreadMember):
-        _log.debug(f"Event on_thread_member_join triggered")
-        await events.on_thread_member_join(self, thread_member)
+    async def on_message(self, message: discord.Message):
+        _log.debug(f"Event on_message triggered")
+        await events.on_message(self, message)
 
     def add_commands(self, commands):
         for command in commands:
@@ -113,13 +117,13 @@ class HermesClient(discord.Client):
                 self.tree.add_command(command['command'])
 
     def get_config(self, guild_id: int):
-        res = next((config for config in self.configs if config.meta.guild_id == guild_id), None)
+        res = next((config for config in self.configs if config.guild_id == guild_id), None)
         if res is None:
             raise ConfigNotFound(guild_id)
         return res
 
     async def update_guild_command(self, config):
-        guild = discord.Object(id=config.meta.guild_id)
+        guild = discord.Object(id=config.guild_id)
         self.tree.clear_commands(guild=guild)
         for command in config.extra_commands:
             def create_callback(cmd: ExtraCommand):
@@ -136,11 +140,11 @@ class HermesClient(discord.Client):
 
             self.tree.add_command(
                 Command(name=command.name, description=command.description, callback=callback_func),
-                guild=discord.Object(id=config.meta.guild_id))
+                guild=discord.Object(id=config.guild_id))
 
-        if config.meta.guild_id == 1033684799912677388:
+        if config.guild_id == 1033684799912677388:
             self.tree.add_command(
                 Command(name="update", description="Update commands (Admin only)", callback=self.updateCommands),
                 guild=discord.Object(id=1033684799912677388))
         await self.tree.sync(guild=guild)
-        _log.info(f"Updated commands for guild {config.meta.name}")
+        _log.info(f"Updated commands for guild {config.name}")

@@ -59,3 +59,21 @@ async def find_ticket_from_logs(log_chan: discord.TextChannel, thread_id: str) -
         if message.embeds and message.embeds[0].footer and message.embeds[0].footer.text.split(" ")[-1] == thread_id:
             return message
     return None
+
+
+async def copy_thread_content(thread: discord.Thread, log_chan: discord.TextChannel):
+    content = "```\n"
+    async for message in thread.history(limit=None, oldest_first=True):
+        # if content is too long, make sure to send 2000 characters at a time
+        line = f"{message.author.name}#{message.author.discriminator}: {message.content}\n"
+        content += line + "\n"
+        if len(content) > 2000:
+            # keep max 2000 characters
+            content_left = content[:1900]
+            content_left += "```"
+            await log_chan.send(content_left)
+            content = "```\n" + content[1900:]
+
+    content += "```"
+    if content != "```\n```":  # if there is no content, don't send anything, it's useless
+        await log_chan.send(content)

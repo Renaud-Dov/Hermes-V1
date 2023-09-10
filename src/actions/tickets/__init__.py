@@ -3,7 +3,8 @@
 #  All right reserved
 
 
-from .close import close, close_all
+from .close import close
+from .on_message import on_message
 from .create import create_ticket
 from .delete import delete_ticket
 from .join import join_ticket

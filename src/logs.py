@@ -6,14 +6,13 @@ from uuid import UUID
 
 import discord
 
-from src.other.db import execute_sql, cursor
-from src.other.types import TypeClose
+from src.domain.entity.close_type import CloseType
 from src.utils import setup_logging
 
 _log = setup_logging(__name__)
 
 
-def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reason: str):
+def close_ticket(manager: discord.Member, type: CloseType, ticket_id: int, reason: str):
     """
     Logs a ticket closing
     @param manager: User who closed the ticket
@@ -24,10 +23,6 @@ def close_ticket(manager: discord.Member, type: TypeClose, ticket_id: int, reaso
     """
     _log.info(
         f'action=close_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} type={type.name} ticket_id={ticket_id} reason=\"{reason}\"')
-
-    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("closed", ticket_id, f"{manager.name}#{manager.discriminator}", reason))
-    execute_sql()
 
 
 def new_ticket(ticket_id: int, name: str, student: discord.Member):
@@ -40,10 +35,6 @@ def new_ticket(ticket_id: int, name: str, student: discord.Member):
     """
     _log.info(
         f"action=new_ticket name=\"{name}\" user_id={student.id} user={student.name}#{student.discriminator} ticket_id={ticket_id}")
-
-    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("new", str(ticket_id), f"{student.name}#{student.discriminator}", name))
-    execute_sql()
 
 
 def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: str):
@@ -58,11 +49,6 @@ def renamed_ticket(user: discord.Member, ticket_id: int, old_name: str, name: st
     _log.info(
         f"action=renamed_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} old_name=\"{old_name}\" name=\"{name}\"")
 
-    cursor.execute("INSERT INTO Logs (log_type,ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("renamed", str(ticket_id), f"{user.name}#{user.discriminator}",
-                    f"Renamed ticket {ticket_id} from \"{old_name}\" to \"{name}\""))
-    execute_sql()
-
 
 def deleted_ticket(ticket_id: int, name: str, user: discord.Member):
     """
@@ -75,11 +61,6 @@ def deleted_ticket(ticket_id: int, name: str, user: discord.Member):
     _log.info(
         f"action=deleted_ticket ticket_id={ticket_id} name=\"{name}\" user_id={user.id} user={user.name}#{user.discriminator}")
 
-    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("deleted", str(ticket_id), f"{user.name}#{user.discriminator}", f"Deleted ticket {ticket_id}"))
-    execute_sql()
-
-
 def joined_ticket(manager: discord.Member, ticket_id: int):
     """
     Logs a ticket joining
@@ -89,10 +70,6 @@ def joined_ticket(manager: discord.Member, ticket_id: int):
     """
     _log.info(
         f"action=joined_ticket user_id={manager.id} user={manager.name}#{manager.discriminator} ticket_id={ticket_id}")
-
-    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("joined", str(ticket_id), f"{manager.name}#{manager.discriminator}", f"Joined ticket {ticket_id}"))
-    execute_sql()
 
 
 def error(user: discord.Member, err: Exception, id_err: UUID):
@@ -104,6 +81,7 @@ def error(user: discord.Member, err: Exception, id_err: UUID):
     @return: None
     """
     _log.error(f"action=error user_id={user.id} user={user.name}#{user.discriminator} error={err} err_id={id_err}")
+    _log.exception(err)
 
 
 def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discord.Member):
@@ -118,10 +96,6 @@ def reopen_ticket(user: discord.Member, ticket_id: int, name: str, owner: discor
     _log.info(
         f"action=reopen_ticket user_id={user.id} user={user.name}#{user.discriminator} ticket_id={ticket_id} name=\"{name}\" owner_id={owner.id} owner={owner.name}#{owner.discriminator}")
 
-    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("reopened", str(ticket_id), f"{user.name}#{user.discriminator}", f"Reopened ticket {ticket_id}"))
-    execute_sql()
-
 
 def trace_ticket(user: discord.Member, channel_id: int, login: str, tag: str):
     """
@@ -135,10 +109,6 @@ def trace_ticket(user: discord.Member, channel_id: int, login: str, tag: str):
     _log.info(
         f"action=trace_ticket user_id={user.id} user={user.name}#{user.discriminator} channel_id={channel_id} login=\"{login}\" tag=\"{tag}\"")
 
-    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("trace", str(channel_id), f"{user.name}#{user.discriminator}", f"Tag [{tag}] Login [{login}]"))
-    execute_sql()
-
 
 def closed_trace_ticket(user: discord.Member, channel_id: int, tag: str):
     """
@@ -151,6 +121,7 @@ def closed_trace_ticket(user: discord.Member, channel_id: int, tag: str):
     _log.info(
         f"action=closed_trace_ticket user_id={user.id} user={user.name}#{user.discriminator} channel_id={channel_id} tag=\"{tag}\"")
 
-    cursor.execute("INSERT INTO Logs (log_type, ticket_id, done_by, log_message) VALUES (%s, %s, %s, %s)",
-                   ("closed_trace", str(channel_id), f"{user.name}#{user.discriminator}", f"Tag [{tag}]"))
-    execute_sql()
+
+def new_participant(author: discord.Member, ticket_id: int):
+    _log.info(
+        f"action=new_participant user_id={author.id} user={author.name}#{author.discriminator} ticket_id={ticket_id}")
