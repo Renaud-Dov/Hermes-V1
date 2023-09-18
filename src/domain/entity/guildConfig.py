@@ -62,6 +62,9 @@ class ExtraCommand(BaseModel):
     hide_command_response: bool = Field(False,
                                         description="Respond command in ephemeral message and send message in public")
 
+    def get_embeds(self) -> List[discord.Embed]:
+        return [discord.Embed(title=embed.title, description=embed.description, color=embed.color if embed.color else discord.Color.blue()) for embed in self.embeds]
+
 
 class Config(BaseModel):
     slug: str = Field(..., min_length=1, max_length=100, description="Slug of the config")

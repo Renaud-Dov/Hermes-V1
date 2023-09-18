@@ -130,9 +130,9 @@ class HermesClient(discord.Client):
                 async def callback(interaction: discord.Interaction):
                     if cmd.hide_command_response:
                         await interaction.response.send_message("Done", ephemeral=True)
-                        await interaction.followup.send(content=cmd.message, embeds=cmd.embeds)
+                        await interaction.followup.send(content=cmd.message, embeds=cmd.get_embeds())
                     else:
-                        await interaction.response.send_message(cmd.message, embeds=cmd.embeds, ephemeral=False)
+                        await interaction.response.send_message(cmd.message, embeds=cmd.get_embeds(), ephemeral=False)
 
                 return callback
 
