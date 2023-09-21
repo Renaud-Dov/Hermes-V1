@@ -52,6 +52,7 @@ class Ticket(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     # forum: Mapped["Forum"] = relationship(back_populates="tickets")
     forum_id: Mapped[str] = mapped_column()
+    guild_id: Mapped[str] = mapped_column()
 
     name: Mapped[str] = mapped_column()
     thread_id: Mapped[str] = mapped_column(unique=True)

@@ -44,7 +44,7 @@ async def create_ticket(client: HermesClient, thread: discord.Thread):
     webhook_msg = await webhook.send(embed=embed, view=view)
     time = datetime.datetime.utcnow()
     with Session(engine) as session: # create ticket in database
-        ticket = Ticket(thread_id=thread.id, created_by=thread.owner_id,created_at=time, updated_at=time, name=thread.name, forum_id=thread.parent_id,
+        ticket = Ticket(thread_id=thread.id, created_by=thread.owner_id,created_at=time, updated_at=time, name=thread.name, forum_id=thread.parent_id, guild_id=thread.guild.id,
                         webhook_message_url=webhook_msg.jump_url)
         session.add(ticket)
 
