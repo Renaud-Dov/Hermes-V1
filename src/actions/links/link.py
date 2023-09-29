@@ -21,4 +21,4 @@ async def link(interaction: discord.Interaction, id: int):
         if ticket is None:
             await interaction.response.send_message("Invalid ID", ephemeral=True)
             return
-        await interaction.response.send_message(f"https://discord.com/channels/{ticket.forum_id}/{ticket.thread_id}")
+        await interaction.response.send_message(f"Ticket {ticket.id}: https://discord.com/channels/{ticket.forum_id}/{ticket.thread_id}")
