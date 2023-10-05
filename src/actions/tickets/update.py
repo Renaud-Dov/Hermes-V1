@@ -17,4 +17,4 @@ async def update_ticket(client: HermesClient, before: discord.Thread, after: dis
             and not config_forum.trace_tag in [tag.name for tag in before.applied_tags]:
         await asyncio.sleep(0.5)
         await after.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
-                         "login and the tag of your trace below.")
+                         f"login and the tag of your trace below. {after.owner.mention}")

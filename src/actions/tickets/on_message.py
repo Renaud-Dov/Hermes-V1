@@ -10,6 +10,8 @@ from src.data.engine import engine
 from src.data.models import Ticket, TicketParticipant, TicketLog
 from src.domain.entity.TicketStatus import Status
 from src.domain.entity.logType import LogType
+from src.other.Embed import newThreadEmbed
+from src.utils import url_to_message
 
 
 async def on_message(client: HermesClient, message: discord.Message):
@@ -46,4 +48,9 @@ async def on_message(client: HermesClient, message: discord.Message):
 
     session.commit()
     logs.new_participant(message.author, thread.id)
+
+    message = await url_to_message(client=client, url=ticket.webhook_message_url)
+    if message:
+        embed: discord.Embed = newThreadEmbed(thread, Status.IN_PROGRESS)
+        await message.edit(embed=embed)
 

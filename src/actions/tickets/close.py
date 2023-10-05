@@ -31,6 +31,11 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
         await interaction.response.send_message("This thread is not linked to a forum!", ephemeral=True)
         return
 
+    if config.get_manager_category(interaction.user) is None:
+        await interaction.response.send_message("You are not allowed to use this command! You must be a manager.",
+                                                ephemeral=True)
+        return
+
     session = Session(engine)
     ticket = session.execute(select(Ticket).where(Ticket.thread_id == str(thread.id))).scalar_one_or_none()
     if not ticket:
@@ -60,7 +65,7 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
             if type == CloseType.Resolve:  # send embed to user with reopen button
                 await thread.owner.send(embed=Embed.closedPMEmbed(ticket, thread, interaction.user),
                                         view=Embed.ReopenView())
-            await thread.edit(archived=True, locked=True)  # archive thread and lock it
+            await thread.edit(archived=True, locked=True, reason=f"Ticket closed by {interaction.user}")  # archive thread and lock it
             logs.close_ticket(interaction.user, type, thread.id, reason)  # log the action
             ticket.status = Status.CLOSED  # update ticket status in database
             log = TicketLog(ticket=ticket, kind=LogType.CLOSED_TICKET, by=interaction.user.id, message=reason, at=time)
@@ -75,8 +80,6 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
             await tools.copy_thread_content(thread, log_thread)
             await thread.delete()
             logs.deleted_ticket(ticket_id=ticket.id, name=thread.name, user=interaction.user)
-            log = TicketLog(ticket=ticket, kind=LogType.DELETED_TICKET, by=interaction.user.id, message=reason, at=time)
-            session.add(log)
 
     for tag in tags_name:
         ticket.tags.append(TicketTag(tag=tag))  # add tags to ticket in database

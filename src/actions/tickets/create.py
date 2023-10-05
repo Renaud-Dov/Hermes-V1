@@ -19,21 +19,24 @@ from src.other import Embed
 async def create_ticket(client: HermesClient, thread: discord.Thread):
     config = client.get_config(thread.guild.id)
     config_forum = config.get_forum(thread.parent_id)
-    if not config_forum: # if the forum is not configured we don't create a ticket
+    if not config_forum:  # if the forum is not configured we don't create a ticket
         return
 
     await thread.join()
 
-    current_tags = [thread.parent.get_tag(tag.id) for tag in config_forum.get_current_tags()] # get current tags
-
+    current_tags = [thread.parent.get_tag(tag.id) for tag in config_forum.get_current_tags()]  # get current tags
+    wait = False
     if current_tags:
+        await asyncio.sleep(0.5)  # avoid discord latency
+        wait = True
         await thread.add_tags(*current_tags)
         await thread.send(f"Auto added tag(s): {', '.join([tag.name for tag in current_tags])}")
         if None in current_tags:
             await thread.send(f"Error: a tag was not found.")
 
-    if config_forum.trace_tag in [tag.name for tag in thread.applied_tags]: # if the trace tag is present
-        await asyncio.sleep(0.5) # avoid discord latency
+    if config_forum.trace_tag in [tag.name for tag in thread.applied_tags]:  # if the trace tag is present
+        if not wait:  # don't wait if we already waited
+            await asyncio.sleep(0.5)  # avoid discord latency
         await thread.send("Merci de préciser votre login et le tag de votre trace ci dessous./Please specify your "
                           f"login and the tag of your trace below. {thread.owner.mention}")
 
@@ -43,16 +46,15 @@ async def create_ticket(client: HermesClient, thread: discord.Thread):
     webhook = client.get_channel(config_forum.webhook_channel)
     webhook_msg = await webhook.send(embed=embed, view=view)
     time = datetime.datetime.utcnow()
-    with Session(engine) as session: # create ticket in database
-        ticket = Ticket(thread_id=thread.id, created_by=thread.owner_id,created_at=time, updated_at=time, name=thread.name, forum_id=thread.parent_id, guild_id=thread.guild.id,
+    with Session(engine) as session:  # create ticket in database
+        ticket = Ticket(thread_id=thread.id, created_by=thread.owner_id, created_at=time, updated_at=time,
+                        name=thread.name, forum_id=thread.parent_id, guild_id=thread.guild.id,
                         webhook_message_url=webhook_msg.jump_url)
         session.add(ticket)
 
-        log = TicketLog(ticket=ticket, kind=LogType.CREATED_TICKET, by=thread.owner_id,at=time)
+        log = TicketLog(ticket=ticket, kind=LogType.CREATED_TICKET, by=thread.owner_id, at=time)
         session.add(log)
 
         session.commit()
         thread = await thread.edit(name=f"[{ticket.id}] {thread.name}")
         logs.new_ticket(thread.id, thread.name, thread.owner)
-
-

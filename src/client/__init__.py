@@ -86,6 +86,23 @@ class HermesClient(discord.Client):
 
         await interaction.followup.send("Done updating commands and configuration")
 
+        for config in self.configs:
+            embed = discord.Embed(title=config.slug)
+            description = "**Managers**:\n"
+            for manager in config.managers:
+                description += f"{manager.slug}, roles: {', '.join([role for role in manager.roles])}, users: {', '.join([user for user in manager.users])}\n"
+            description += "\n**Forums**:\n"
+            for forum in config.forums:
+                description += f"{forum.slug}, channel: {forum.id}, webhook: {forum.webhook_channel}\n"
+                description += "\n**Tags**:\n"
+                for tag in forum.practicals_tags:
+                    description += f"{tag.id}, from: {tag.from_date}, to: {tag.to_date}\n"
+            for tag in config.trace_tags:
+                description += f"{tag.tag}, from: {tag.from_date}, to: {tag.to_date}, allowed: {', '.join([role for role in tag.allowed.roles])} {', '.join([user for user in tag.allowed.users])}\n"
+            embed.description = description
+            await interaction.followup.send(embed=embed)
+            print(config)
+
 
 
     ############################
