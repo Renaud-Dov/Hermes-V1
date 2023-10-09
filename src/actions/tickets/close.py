@@ -19,6 +19,19 @@ from src.other.tools import find_ticket_from_logs
 from src.domain.entity.close_type import CloseType
 from src.utils import url_to_message
 
+async def send_message_to_user(member: discord.Member ,embed: discord.Embed, view: discord.ui.View = None):
+    """
+    Send a message to the member
+    @param member: member to send the message
+    @param embed: Embed to send
+    @param view: View to send
+    """
+
+    try:
+        await member.send(embed=embed, view=view)
+    except discord.Forbidden:
+        pass
+
 
 async def close(interaction: discord.Interaction, type: Optional[CloseType] = CloseType.Resolve, reason: str = None):
     thread: discord.Thread = interaction.channel
@@ -63,8 +76,7 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
             await interaction.response.send_message("Marked as done", ephemeral=True)
             await thread.send(embed=response_embed)
             if type == CloseType.Resolve:  # send embed to user with reopen button
-                await thread.owner.send(embed=Embed.closedPMEmbed(ticket, thread, interaction.user),
-                                        view=Embed.ReopenView())
+                await send_message_to_user(thread.owner, Embed.closedPMEmbed(ticket, thread, interaction.user), Embed.ReopenView())
             await thread.edit(archived=True, locked=True, reason=f"Ticket closed by {interaction.user}")  # archive thread and lock it
             logs.close_ticket(interaction.user, type, thread.id, reason)  # log the action
             ticket.status = Status.CLOSED  # update ticket status in database
@@ -73,7 +85,7 @@ async def close(interaction: discord.Interaction, type: Optional[CloseType] = Cl
 
         case CloseType.Delete:
             ticket.status = Status.DELETED  # update ticket status in database
-            await thread.owner.send(embed=response_embed)  # send embed to user
+            await send_message_to_user(thread.owner, response_embed)  # send embed to user
             log_msg = await log_chan.send(embed=Embed.deletedThreadEmbed(thread, interaction.user, reason))
             # create a new thread in response to the log message
             log_thread = await log_msg.create_thread(name=thread.name, auto_archive_duration=0)
