@@ -22,4 +22,4 @@ async def link(interaction: discord.Interaction, id: int):
             await interaction.response.send_message("Invalid ID", ephemeral=True)
             return
         url = f"https://discord.com/channels/{ticket.guild_id}/{ticket.thread_id}"
-        await interaction.response.send_message(f"Ticket {ticket.id}: " + url, ephemeral=True)
+        await interaction.response.send_message(f"Ticket {ticket.id}: " + url)
