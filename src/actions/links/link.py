@@ -21,6 +21,5 @@ async def link(interaction: discord.Interaction, id: int):
         if ticket is None:
             await interaction.response.send_message("Invalid ID", ephemeral=True)
             return
-        view = discord.ui.View()
-        view.add_item(discord.ui.Button(label="Link", style=discord.ButtonStyle.link, url=f"https://discord.com/channels/{ticket.guild_id}/{ticket.thread_id}"))
-        await interaction.response.send_message(f"Ticket {ticket.id}",view=view)
+        url = f"https://discord.com/channels/{ticket.guild_id}/{ticket.thread_id}"
+        await interaction.response.send_message(f"Ticket {ticket.id}: " + url, ephemeral=True)
