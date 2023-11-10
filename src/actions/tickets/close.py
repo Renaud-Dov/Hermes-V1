@@ -17,7 +17,9 @@ from src.other import tools, Embed
 from src.other.Embed import newThreadEmbed
 from src.other.tools import find_ticket_from_logs
 from src.domain.entity.close_type import CloseType
-from src.utils import url_to_message
+from src.utils import url_to_message, setup_logging
+
+_log = setup_logging(__name__)
 
 async def send_message_to_user(member: discord.Member ,embed: discord.Embed, view: discord.ui.View = None):
     """
@@ -29,8 +31,11 @@ async def send_message_to_user(member: discord.Member ,embed: discord.Embed, vie
 
     try:
         await member.send(embed=embed, view=view)
-    except discord.Forbidden:
+    except discord.errors.Forbidden:
         pass
+    except Exception as e:
+        _log.error(f"Error while sending message to user {member.id}: {e}")
+
 
 
 async def close(interaction: discord.Interaction, type: Optional[CloseType] = CloseType.Resolve, reason: str = None):
