@@ -12,3 +12,4 @@ from .rename import rename
 from .reopen import reopen_ticket
 from .traces import trace_ticket, close_trace_ticket
 from .update import update_ticket
+from .title import ask_title

@@ -10,6 +10,9 @@ commands = [
                         callback=links.google)},
     {'command': Command(name="close", description="Mark a ticket as resolved", callback=tickets.close)},
     {'command': Command(name="rename", description="Rename a ticket", callback=tickets.rename)},
+    # command to ask ticket creator to give explicit title to his ticket
+    {'command': Command(name="ask_title", description="Ask ticket creator to give explicit title to his ticket",
+                        callback=tickets.ask_title)},
     {'command': Command(name="link", description="Link to another ticket", callback=links.link)},
     {'command': Command(name="impersonate", description="...", callback=extras.send_message)},
     {'command': Command(name="trace", description="Trace a ticket", callback=tickets.trace_ticket)},
