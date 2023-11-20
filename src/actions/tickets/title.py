@@ -16,6 +16,7 @@ from src.utils import setup_logging
 
 _log = setup_logging(__name__)
 
+
 async def ask_title(interaction: discord.Interaction):
     """
     Ask ticket creator to give explicit title to his ticket
@@ -38,9 +39,10 @@ async def ask_title(interaction: discord.Interaction):
 
     channel = interaction.channel
     await interaction.response.send_message("Sending message...", ephemeral=True)
-    await channel.send(
-        "Le titre de votre ticket ne suit pas les règles. Merci de donner un titre explicite à votre ticket sans quoi aucune aide ne pourra vous être apportée.\n" +
-        "The title of your ticket does not follow the rules. Please give an explicit title to your ticket otherwise no help can be provided to you.")
+    embed = discord.Embed(title="Invalid title!", description=
+    "Le titre de votre ticket ne suit pas les règles. **Merci de donner un titre explicite à votre ticket sans quoi aucune aide ne pourra vous être apportée.**\n\n" +
+    "The title of your ticket does not follow the rules. **Please give an explicit title to your ticket otherwise no help can be provided to you.**",
+                          color=discord.Color.red())
+
+    await channel.send(thread.owner.mention, embed=embed)
     _log.info(f"AskTitle command used by {interaction.user} with on thread {thread.id}")
-
-
