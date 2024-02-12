@@ -3,5 +3,6 @@
 #  All right reserved
 
 from .send import *
+from .fe1tike import *
 
-__all__ = ["send"]
+__all__ = ["send", "fe1tike"]

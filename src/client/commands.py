@@ -17,6 +17,7 @@ commands = [
     {'command': Command(name="impersonate", description="...", callback=extras.send_message)},
     {'command': Command(name="trace", description="Trace a ticket", callback=tickets.trace_ticket)},
     {'command': Command(name="close_trace", description="Close a trace ticket", callback=tickets.close_trace_ticket)},
+    {'command': Command(name="fe1tike", description="You know what I mean", callback=extras.fe1tike)},
     # {'command': Command(name="close_all", description="Close all tickets with a specific tag",
     #                     callback=tickets.close_all)},
 ]
