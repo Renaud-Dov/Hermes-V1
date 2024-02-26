@@ -37,18 +37,33 @@ class HermesClient(discord.Client):
             guilds=[discord.Object(id=1033684799912677388), discord.Object(id=1130274409152778240)])
 
     def __load_configs(self):
-        # scan all files in config directory, and load them
-        files = os.listdir("config")
+        # read CONFIG environment variable
+        raw_config_env = os.getenv("CONFIG")
+        if not raw_config_env:
+            _log.error("No CONFIG environment variable found")
+            return
+
+        # all configs are separated by a line that contains only "---"
+        # check if the config has multiple configs
+        if "---" in raw_config_env:
+            _log.info("Multiple configs found")
+            raw_configs = raw_config_env.split("---")
+        else:
+            _log.info("Single config found")
+            raw_configs = [raw_config_env]
         self.configs = []  # reset configs
-        for file in files:
+        i = 0
+        for raw_config in raw_configs:
             try:
-                with open(f"config/{file}", "r") as raw_file:
-                    data = yaml.safe_load(raw_file)
+                _log.debug(f"Loading config {i}")
+                _log.debug(raw_config)
+                data = yaml.safe_load(raw_config)
                 config = Config(**data)
                 self.configs.append(config)
-                _log.info(f"Loaded config file {file}")
+                _log.info(f"Loaded config {config.name}")
+                i += 1
             except ValidationError as e:
-                _log.error(f"Error while loading config file {file}: {e.message}")
+                _log.error(f"Error while loading config {i}: {e.message}")
                 continue
         _log.info(f"Loaded {len(self.configs)} config files")
 
@@ -85,23 +100,6 @@ class HermesClient(discord.Client):
         await self.__update_config_commands()
 
         await interaction.followup.send("Done updating commands and configuration")
-
-        for config in self.configs:
-            embed = discord.Embed(title=config.slug)
-            description = "**Managers**:\n"
-            for manager in config.managers:
-                description += f"{manager.slug}, roles: {', '.join([role for role in manager.roles])}, users: {', '.join([user for user in manager.users])}\n"
-            description += "\n**Forums**:\n"
-            for forum in config.forums:
-                description += f"{forum.slug}, channel: {forum.id}, webhook: {forum.webhook_channel}\n"
-                description += "\n**Tags**:\n"
-                for tag in forum.practicals_tags:
-                    description += f"{tag.id}, from: {tag.from_date}, to: {tag.to_date}\n"
-            for tag in config.trace_tags:
-                description += f"{tag.tag}, from: {tag.from_date}, to: {tag.to_date}, allowed: {', '.join([role for role in tag.allowed.roles])} {', '.join([user for user in tag.allowed.users])}\n"
-            embed.description = description
-            await interaction.followup.send(embed=embed)
-            print(config)
 
 
 
