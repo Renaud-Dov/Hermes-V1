@@ -55,8 +55,8 @@ class HermesClient(discord.Client):
         i = 0
         for raw_config in raw_configs:
             try:
-                _log.debug(f"Loading config {i}")
-                _log.debug(raw_config)
+                _log.info(f"Loading config {i}")
+                _log.info(raw_config)
                 data = yaml.safe_load(raw_config)
                 config = Config(**data)
                 self.configs.append(config)
