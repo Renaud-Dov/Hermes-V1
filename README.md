@@ -81,7 +81,6 @@ extra_commands:
     embeds: # max of 10 embeds
       - title: "Git tutorial"
         description: "My git tutorial"
-
 ```
 
 To set up properly the discord forum, you should:
